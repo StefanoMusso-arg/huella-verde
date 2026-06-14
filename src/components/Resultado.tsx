@@ -6,7 +6,7 @@
 import type { DatosLote } from "../types";
 import { calcularHuella } from "../calc/calculos";
 import { generarRecomendaciones } from "../calc/recomendaciones";
-
+import GraficoEmisiones from "./GraficoEmisiones";
 interface Props {
   datos: DatosLote;
   onVolver: () => void; // para volver al formulario y recalcular
@@ -72,6 +72,11 @@ export default function Resultado({ datos, onVolver }: Props) {
           <FilaDato label="Total emitido" valor={r.emisionesTotales} negrita />
         </div>
       </div>
+
+      {/* GRÁFICO DE TORTA */}
+      <GraficoEmisiones resultado={r} />
+
+      {/* CAPTURA */}
 
       {/* CAPTURA */}
       <div className="rounded-xl border border-green-200 bg-green-50 p-4 mb-5">

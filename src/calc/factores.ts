@@ -1,83 +1,69 @@
 // ============================================================
 //  factores.ts — Constantes y factores de cálculo de Huella Verde
-//  TODOS los números viven acá. Si hay que cambiar un valor,
-//  se cambia en este archivo y se actualiza en toda la app.
-//  Cada factor lleva su fuente para poder defenderlo.
+//  Todos los números viven acá, con su fuente para defenderlos.
 // ============================================================
 
-// ---------- FACTORES DE EMISIÓN (conversión) ----------
+// ---------- FACTORES DE EMISIÓN ----------
+export const FRACCION_N_A_N2O = 0.01;          // IPCC Tier 1 (1% del N)
+export const CONVERSION_N_A_N2O = 44 / 28;     // estequiometría
+export const GWP_N2O = 298;                    // IPCC
+export const CO2_POR_LITRO_GASOIL = 2.68;      // kg CO₂ / litro
+export const CO2_POR_KG_UREA = 0.733;          // IPCC (0,20 kg C × 44/12)
+export const CONVERSION_C_A_CO2 = 44 / 12;     // estequiometría
 
-// Fracción del nitrógeno aplicado que se emite como N₂O.
-// Fuente: IPCC, metodología Tier 1 (emisión directa) → 1% del N.
-export const FRACCION_N_A_N2O = 0.01;
+// ---------- FRACCIÓN DE RETENCIÓN DE CARBONO POR PRÁCTICAS ----------
+// Qué parte del carbono aportado se vuelve secuestro neto estable.
+// Calibrado para coincidir con el secuestro medido por Aapresid
+// en zona húmeda/subhúmeda (0,3–0,5 t C/ha/año).
+export const RETENCION_SIEMBRA_DIRECTA = 0.20;
+export const RETENCION_CULTIVOS_COBERTURA = 0.10;
 
-// Conversión de N (nitrógeno) a N₂O (molécula completa).
-// Surge de los pesos moleculares: 44/28. Estequiometría.
-export const CONVERSION_N_A_N2O = 44 / 28;
-
-// Potencial de Calentamiento Global del N₂O respecto al CO₂.
-// Fuente: IPCC (AR4), valor usado por el Inventario Nacional argentino.
-export const GWP_N2O = 298;
-
-// Emisión de CO₂ por litro de gasoil quemado.
-// Factor estándar de combustión del diésel.
-export const CO2_POR_LITRO_GASOIL = 2.68; // kg CO₂ / litro
-
-// CO₂ liberado por la descomposición de la urea en el suelo.
-// Fuente: IPCC (0,20 kg C por kg de urea × 44/12).
-export const CO2_POR_KG_UREA = 0.733; // kg CO₂ / kg urea
-
-// Conversión de Carbono (C) a CO₂. Estequiometría: 44/12.
-export const CONVERSION_C_A_CO2 = 44 / 12;
+// ---------- VALOR POR DEFECTO ----------
+export const GASOIL_DEFAULT_L_HA = 25;         // Bolsa de Comercio de Rosario
 
 // ---------- FERTILIZANTES ----------
-// Lista centralizada. Para sumar uno nuevo, se agrega una línea acá
-// y aparece solo en toda la app (formulario, cálculo, etc.).
-
 export interface Fertilizante {
   id: string;
   nombre: string;
-  porcentajeN: number;   // fracción de nitrógeno (0.46 = 46%)
-  liberaCO2: boolean;    // true solo para la urea (descomposición)
+  porcentajeN: number;
+  liberaCO2: boolean;
 }
 
 export const FERTILIZANTES: Fertilizante[] = [
-  { id: "urea", nombre: "Urea", porcentajeN: 0.46, liberaCO2: true },
-  // Para sumar más adelante, descomentá estas líneas:
-  // { id: "uan", nombre: "UAN", porcentajeN: 0.32, liberaCO2: false },
-  // { id: "can", nombre: "CAN", porcentajeN: 0.27, liberaCO2: false },
+  { id: "urea", nombre: "Urea (46% N)", porcentajeN: 0.46, liberaCO2: true },
+  { id: "uan", nombre: "UAN (32% N)", porcentajeN: 0.32, liberaCO2: false },
+  { id: "can", nombre: "Nitrato de amonio calcáreo (27% N)", porcentajeN: 0.27, liberaCO2: false },
+  { id: "sulfato", nombre: "Sulfato de amonio (21% N)", porcentajeN: 0.21, liberaCO2: false },
 ];
 
 // ---------- CULTIVOS ----------
-// nReferencia = dosis de N (kg/ha) objetivo total para el cultivo.
-// El motor de recomendaciones la usa para detectar sobrefertilización.
-
 export interface Cultivo {
   id: string;
   nombre: string;
-  usaNitrogeno: boolean; // la soja NO se fertiliza con N (fija el suyo)
-  nReferencia: number;   // kg N/ha objetivo. Fuente: INTA
-  emisionQuemaCO2e: number; // kg CO₂e/ha estimado por quema de rastrojo
+  usaNitrogeno: boolean;
+  nReferencia: number;        // kg N/ha objetivo (INTA)
+  emisionQuemaCO2e: number;   // kg CO₂e/ha por quema de rastrojo
+  coefAporteCarbono: number;  // C al humus por t de rinde (método Álvarez)
+  rindes: { bajo: number; medio: number; alto: number }; // t/ha por ambiente (Marcos Juárez)
 }
 
 export const CULTIVOS: Cultivo[] = [
-  // La soja fija su propio nitrógeno → no se fertiliza con N.
-  { id: "soja",  nombre: "Soja",  usaNitrogeno: false, nReferencia: 0,   emisionQuemaCO2e: 0 },
-  // Maíz: dosis óptimas 90–170 kg N/ha. Fuente: INTA. Quema estimada.
-  { id: "maiz",  nombre: "Maíz",  usaNitrogeno: true,  nReferencia: 150, emisionQuemaCO2e: 525 },
-  // Trigo: objetivo 140–150 kg N/ha. Fuente: INTA Marcos Juárez. Quema estimada.
-  { id: "trigo", nombre: "Trigo", usaNitrogeno: true,  nReferencia: 150, emisionQuemaCO2e: 300 },
+  {
+    id: "soja", nombre: "Soja",
+    usaNitrogeno: false, nReferencia: 0, emisionQuemaCO2e: 0,
+    coefAporteCarbono: 0.37,
+    rindes: { bajo: 3.0, medio: 3.7, alto: 4.2 },
+  },
+  {
+    id: "maiz", nombre: "Maíz",
+    usaNitrogeno: true, nReferencia: 150, emisionQuemaCO2e: 525,
+    coefAporteCarbono: 0.20,
+    rindes: { bajo: 7.5, medio: 9.5, alto: 11.0 },
+  },
+  {
+    id: "trigo", nombre: "Trigo",
+    usaNitrogeno: true, nReferencia: 150, emisionQuemaCO2e: 300,
+    coefAporteCarbono: 0.40,
+    rindes: { bajo: 3.0, medio: 4.0, alto: 5.0 },
+  },
 ];
-
-// ---------- CAPTURA DE CARBONO EN SUELO ----------
-// Valores en toneladas de C por hectárea por año.
-// Fuente: Aapresid (Red de Brechas de Carbono), zona húmeda/subhúmeda.
-
-export const CAPTURA_SIEMBRA_DIRECTA = 0.3;   // t C/ha/año
-export const CAPTURA_CULTIVOS_COBERTURA = 0.2; // t C/ha/año (adicional)
-
-// ---------- VALORES POR DEFECTO ----------
-
-// Consumo de gasoil típico por hectárea (proceso productivo).
-// Fuente: Bolsa de Comercio de Rosario (~25 L/ha).
-export const GASOIL_DEFAULT_L_HA = 25;

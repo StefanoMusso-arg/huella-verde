@@ -1,51 +1,44 @@
 // ============================================================
-//  recomendaciones.ts — Motor de recomendaciones de mitigación
-//  Según los datos del lote, genera consejos concretos con el
-//  ahorro estimado de CO₂e de cada uno.
+//  recomendaciones.ts — Motor de recomendaciones de mitigación.
+//  Cada consejo trae su ahorro estimado de CO₂e, calculado con
+//  las mismas fórmulas y factores que el motor de cálculo.
 // ============================================================
 
 import {
   FRACCION_N_A_N2O,
   CONVERSION_N_A_N2O,
   GWP_N2O,
-  CAPTURA_SIEMBRA_DIRECTA,
-  CAPTURA_CULTIVOS_COBERTURA,
   CONVERSION_C_A_CO2,
+  RETENCION_SIEMBRA_DIRECTA,
+  RETENCION_CULTIVOS_COBERTURA,
   FERTILIZANTES,
   CULTIVOS,
 } from "./factores";
-import type { DatosLote } from "./calculos";
+import type { DatosLote } from "../types";
 
-// ---------- FORMA DE UNA RECOMENDACIÓN ----------
 export interface Recomendacion {
   id: string;
-  titulo: string;             // la acción, corta
-  descripcion: string;        // explicación en lenguaje simple
-  ahorroEstimadoKgCO2e: number; // cuánto CO₂e se ahorraría
+  titulo: string;
+  descripcion: string;
+  ahorroEstimadoKgCO2e: number;
 }
 
-// ============================================================
-//  FUNCIÓN PRINCIPAL: genera las recomendaciones de un lote
-// ============================================================
 export function generarRecomendaciones(datos: DatosLote): Recomendacion[] {
   const recomendaciones: Recomendacion[] = [];
 
   const cultivo = CULTIVOS.find((c) => c.id === datos.cultivoId);
   const fertilizante = FERTILIZANTES.find((f) => f.id === datos.fertilizanteId);
-  if (!cultivo) return recomendaciones; // sin cultivo no hay nada que sugerir
+  if (!cultivo) return recomendaciones;
+
+  // Carbono que aporta el cultivo según su rinde (base para captura).
+  const aporteCarbonoTHa = datos.rindeTHa * cultivo.coefAporteCarbono;
 
   // --- REGLA 1: exceso de nitrógeno ---
-  // Si el cultivo usa N y la dosis aplicada supera la referencia del INTA.
   if (cultivo.usaNitrogeno && fertilizante) {
     const nAplicadoHa = datos.dosisFertilizanteKgHa * fertilizante.porcentajeN;
-
     if (nAplicadoHa > cultivo.nReferencia) {
-      // Cuánto N de más se está aplicando por hectárea, en todo el lote.
-      const excesoNHa = nAplicadoHa - cultivo.nReferencia;
-      const excesoNtotal = excesoNHa * datos.superficieHa;
-      // Ese exceso traducido a CO₂e (misma cadena N → N₂O → CO₂).
+      const excesoNtotal = (nAplicadoHa - cultivo.nReferencia) * datos.superficieHa;
       const ahorro = excesoNtotal * FRACCION_N_A_N2O * CONVERSION_N_A_N2O * GWP_N2O;
-
       recomendaciones.push({
         id: "ajustar-n",
         titulo: "Ajustá la dosis de nitrógeno",
@@ -60,7 +53,6 @@ export function generarRecomendaciones(datos: DatosLote): Recomendacion[] {
     const nAplicadoTotal =
       datos.dosisFertilizanteKgHa * fertilizante.porcentajeN * datos.superficieHa;
     const ahorro = nAplicadoTotal * FRACCION_N_A_N2O * CONVERSION_N_A_N2O * GWP_N2O;
-
     recomendaciones.push({
       id: "soja-sin-n",
       titulo: "La soja no necesita nitrógeno",
@@ -82,12 +74,14 @@ export function generarRecomendaciones(datos: DatosLote): Recomendacion[] {
 
   // --- REGLA 4: adoptar siembra directa ---
   if (!datos.siembraDirecta) {
+    // Lo que retendría si pasara a siembra directa (según su rinde).
     const ahorro =
-      CAPTURA_SIEMBRA_DIRECTA * datos.superficieHa * CONVERSION_C_A_CO2 * 1000;
+      aporteCarbonoTHa * RETENCION_SIEMBRA_DIRECTA *
+      CONVERSION_C_A_CO2 * datos.superficieHa * 1000;
     recomendaciones.push({
       id: "siembra-directa",
       titulo: "Pasá a siembra directa",
-      descripcion: "La siembra directa ayuda a que el suelo capture carbono y reduce el uso de combustible al evitar el laboreo.",
+      descripcion: "La siembra directa ayuda a que el suelo retenga el carbono que aporta el cultivo y reduce el uso de combustible al evitar el laboreo.",
       ahorroEstimadoKgCO2e: ahorro,
     });
   }
@@ -95,11 +89,12 @@ export function generarRecomendaciones(datos: DatosLote): Recomendacion[] {
   // --- REGLA 5: sumar cultivos de cobertura ---
   if (!datos.cultivosCobertura) {
     const ahorro =
-      CAPTURA_CULTIVOS_COBERTURA * datos.superficieHa * CONVERSION_C_A_CO2 * 1000;
+      aporteCarbonoTHa * RETENCION_CULTIVOS_COBERTURA *
+      CONVERSION_C_A_CO2 * datos.superficieHa * 1000;
     recomendaciones.push({
       id: "cultivos-cobertura",
       titulo: "Sumá cultivos de cobertura",
-      descripcion: "Los cultivos de cobertura capturan carbono, protegen el suelo de la erosión y mejoran su estructura.",
+      descripcion: "Los cultivos de cobertura ayudan a retener más carbono en el suelo, lo protegen de la erosión y mejoran su estructura.",
       ahorroEstimadoKgCO2e: ahorro,
     });
   }

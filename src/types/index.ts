@@ -1,12 +1,11 @@
 // ============================================================
 //  types/index.ts — Tipos compartidos por toda la app.
-//  Acá vive la "forma" de los datos que usan varios archivos.
 // ============================================================
 
-// Lo que carga el productor en el formulario.
 export interface DatosLote {
   cultivoId: string;
   superficieHa: number;
+  rindeTHa: number;          // NUEVO: rinde del cultivo en toneladas/ha
   fertilizanteId: string;
   dosisFertilizanteKgHa: number;
   gasoilLHa: number;

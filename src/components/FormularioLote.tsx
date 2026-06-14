@@ -1,22 +1,23 @@
 // ============================================================
-//  FormularioLote.tsx — La pantalla donde el productor carga
-//  los datos de su lote. Al apretar "Calcular", avisa al padre.
+//  FormularioLote.tsx — Pantalla de carga de datos del lote.
+//  Incluye rinde con selector de ambiente (alto/medio/bajo).
 // ============================================================
 
 import { useState } from "react";
 import { CULTIVOS, FERTILIZANTES, GASOIL_DEFAULT_L_HA } from "../calc/factores";
 import type { DatosLote } from "../types";
 
-// El formulario recibe una función "onCalcular": cuando el productor
-// termina y aprieta el botón, le pasa los datos cargados al componente padre.
 interface Props {
   onCalcular: (datos: DatosLote) => void;
 }
 
+type Ambiente = "bajo" | "medio" | "alto";
+
 export default function FormularioLote({ onCalcular }: Props) {
-  // Cada campo guarda su valor en el "estado" del componente.
   const [cultivoId, setCultivoId] = useState("maiz");
   const [superficieHa, setSuperficieHa] = useState("");
+  const [ambiente, setAmbiente] = useState<Ambiente>("medio");
+  const [rindeTHa, setRinde] = useState(""); // si está vacío, usamos el del ambiente
   const [fertilizanteId, setFertilizanteId] = useState("urea");
   const [dosisFertilizanteKgHa, setDosis] = useState("");
   const [gasoilLHa, setGasoil] = useState(String(GASOIL_DEFAULT_L_HA));
@@ -24,15 +25,20 @@ export default function FormularioLote({ onCalcular }: Props) {
   const [siembraDirecta, setSiembraDirecta] = useState(false);
   const [cultivosCobertura, setCobertura] = useState(false);
 
-  // Averiguamos si el cultivo elegido usa nitrógeno (la soja no).
   const cultivoActual = CULTIVOS.find((c) => c.id === cultivoId);
   const usaNitrogeno = cultivoActual?.usaNitrogeno ?? false;
 
-  // Cuando se aprieta "Calcular", armamos el objeto y lo mandamos arriba.
+  // El rinde sugerido según el ambiente elegido (valor por defecto).
+  const rindeSugerido = cultivoActual?.rindes[ambiente] ?? 0;
+
+  // El rinde final: si el productor escribió uno, ese; si no, el sugerido.
+  const rindeFinal = rindeTHa !== "" ? Number(rindeTHa) : rindeSugerido;
+
   function manejarCalcular() {
     onCalcular({
       cultivoId,
       superficieHa: Number(superficieHa) || 0,
+      rindeTHa: rindeFinal,
       fertilizanteId,
       dosisFertilizanteKgHa: usaNitrogeno ? Number(dosisFertilizanteKgHa) || 0 : 0,
       gasoilLHa: Number(gasoilLHa) || 0,
@@ -42,7 +48,6 @@ export default function FormularioLote({ onCalcular }: Props) {
     });
   }
 
-  // ¿Están los datos mínimos para calcular? (superficie > 0)
   const puedeCalcular = Number(superficieHa) > 0;
 
   return (
@@ -60,7 +65,7 @@ export default function FormularioLote({ onCalcular }: Props) {
           </label>
           <select
             value={cultivoId}
-            onChange={(e) => setCultivoId(e.target.value)}
+            onChange={(e) => { setCultivoId(e.target.value); setRinde(""); }}
             className="w-full rounded-lg border border-gray-300 p-3 text-gray-800 focus:border-green-500 focus:outline-none"
           >
             {CULTIVOS.map((c) => (
@@ -83,7 +88,40 @@ export default function FormularioLote({ onCalcular }: Props) {
           />
         </div>
 
-        {/* FERTILIZANTE (solo si el cultivo usa nitrógeno) */}
+        {/* AMBIENTE + RINDE */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
+            Ambiente del lote
+          </label>
+          <div className="grid grid-cols-3 gap-2 mb-2">
+            {(["bajo", "medio", "alto"] as Ambiente[]).map((amb) => (
+              <button
+                key={amb}
+                type="button"
+                onClick={() => { setAmbiente(amb); setRinde(""); }}
+                className={`rounded-lg border p-2 text-sm capitalize transition-colors ${
+                  ambiente === amb
+                    ? "border-green-600 bg-green-50 text-green-700 font-semibold"
+                    : "border-gray-300 text-gray-600"
+                }`}
+              >
+                {amb}
+              </button>
+            ))}
+          </div>
+          <label className="block text-xs text-gray-500 mb-1">
+            Rinde estimado (t/ha) — podés ajustarlo si sabés el tuyo
+          </label>
+          <input
+            type="number"
+            value={rindeTHa}
+            onChange={(e) => setRinde(e.target.value)}
+            placeholder={`${rindeSugerido} (sugerido para ambiente ${ambiente})`}
+            className="w-full rounded-lg border border-gray-300 p-3 text-gray-800 focus:border-green-500 focus:outline-none"
+          />
+        </div>
+
+        {/* FERTILIZANTE (solo si usa nitrógeno) */}
         {usaNitrogeno && (
           <>
             <div>
@@ -129,7 +167,7 @@ export default function FormularioLote({ onCalcular }: Props) {
           />
         </div>
 
-        {/* PRÁCTICAS (los sí/no) */}
+        {/* PRÁCTICAS */}
         <div className="space-y-3 pt-2">
           <CheckRow label="¿Quema los rastrojos?" checked={quemaRastrojos} onChange={setQuema} />
           <CheckRow label="¿Hace siembra directa?" checked={siembraDirecta} onChange={setSiembraDirecta} />
@@ -154,7 +192,6 @@ export default function FormularioLote({ onCalcular }: Props) {
   );
 }
 
-// Componentito reutilizable para las preguntas de sí/no.
 function CheckRow({
   label, checked, onChange,
 }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
