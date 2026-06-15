@@ -41,7 +41,7 @@ export interface Cultivo {
   id: string;
   nombre: string;
   usaNitrogeno: boolean;
-  nReferencia: number;        // kg N/ha objetivo (INTA)
+  nPorTonelada: number;       // kg de N necesarios por tonelada de grano (IPNI/INTA)
   emisionQuemaCO2e: number;   // kg CO₂e/ha por quema de rastrojo
   coefAporteCarbono: number;  // C al humus por t de rinde (método Álvarez)
   rindes: { bajo: number; medio: number; alto: number }; // t/ha por ambiente (Marcos Juárez)
@@ -50,19 +50,19 @@ export interface Cultivo {
 export const CULTIVOS: Cultivo[] = [
   {
     id: "soja", nombre: "Soja",
-    usaNitrogeno: false, nReferencia: 0, emisionQuemaCO2e: 0,
+    usaNitrogeno: false, nPorTonelada: 0, emisionQuemaCO2e: 0,
     coefAporteCarbono: 0.37,
     rindes: { bajo: 3.0, medio: 3.7, alto: 4.2 },
   },
   {
     id: "maiz", nombre: "Maíz",
-    usaNitrogeno: true, nReferencia: 150, emisionQuemaCO2e: 525,
+    usaNitrogeno: true, nPorTonelada: 22, emisionQuemaCO2e: 525,
     coefAporteCarbono: 0.20,
     rindes: { bajo: 7.5, medio: 9.5, alto: 11.0 },
   },
   {
     id: "trigo", nombre: "Trigo",
-    usaNitrogeno: true, nReferencia: 150, emisionQuemaCO2e: 300,
+    usaNitrogeno: true, nPorTonelada: 30, emisionQuemaCO2e: 300,
     coefAporteCarbono: 0.40,
     rindes: { bajo: 3.0, medio: 4.0, alto: 5.0 },
   },

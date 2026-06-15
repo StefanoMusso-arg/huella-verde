@@ -1,7 +1,7 @@
 // ============================================================
 //  recomendaciones.ts — Motor de recomendaciones de mitigación.
-//  Cada consejo trae su ahorro estimado de CO₂e, calculado con
-//  las mismas fórmulas y factores que el motor de cálculo.
+//  El objetivo de N se calcula según el rinde esperado del lote
+//  (requerimiento por tonelada, criterio IPNI/INTA).
 // ============================================================
 
 import {
@@ -33,16 +33,20 @@ export function generarRecomendaciones(datos: DatosLote): Recomendacion[] {
   // Carbono que aporta el cultivo según su rinde (base para captura).
   const aporteCarbonoTHa = datos.rindeTHa * cultivo.coefAporteCarbono;
 
-  // --- REGLA 1: exceso de nitrógeno ---
+  // --- REGLA 1: exceso de nitrógeno (objetivo según rinde) ---
   if (cultivo.usaNitrogeno && fertilizante) {
+    // Objetivo de N = rinde esperado × requerimiento por tonelada (IPNI/INTA).
+    const nObjetivoHa = datos.rindeTHa * cultivo.nPorTonelada;
+    // N que aporta el fertilizante por hectárea.
     const nAplicadoHa = datos.dosisFertilizanteKgHa * fertilizante.porcentajeN;
-    if (nAplicadoHa > cultivo.nReferencia) {
-      const excesoNtotal = (nAplicadoHa - cultivo.nReferencia) * datos.superficieHa;
+
+    if (nAplicadoHa > nObjetivoHa && nObjetivoHa > 0) {
+      const excesoNtotal = (nAplicadoHa - nObjetivoHa) * datos.superficieHa;
       const ahorro = excesoNtotal * FRACCION_N_A_N2O * CONVERSION_N_A_N2O * GWP_N2O;
       recomendaciones.push({
         id: "ajustar-n",
         titulo: "Ajustá la dosis de nitrógeno",
-        descripcion: `Estás aplicando ~${Math.round(nAplicadoHa)} kg de N por hectárea, por encima del objetivo de referencia (${cultivo.nReferencia} kg/ha) para ${cultivo.nombre}. Un análisis de suelo te permite ajustar la dosis, ahorrar fertilizante y reducir emisiones.`,
+        descripcion: `Para un rinde de ${datos.rindeTHa} t/ha de ${cultivo.nombre}, el objetivo de nitrógeno es ~${Math.round(nObjetivoHa)} kg/ha, pero estás aplicando ~${Math.round(nAplicadoHa)} kg/ha. Un análisis de suelo te permite ajustar la dosis, ahorrar fertilizante y reducir emisiones.`,
         ahorroEstimadoKgCO2e: ahorro,
       });
     }
@@ -74,7 +78,6 @@ export function generarRecomendaciones(datos: DatosLote): Recomendacion[] {
 
   // --- REGLA 4: adoptar siembra directa ---
   if (!datos.siembraDirecta) {
-    // Lo que retendría si pasara a siembra directa (según su rinde).
     const ahorro =
       aporteCarbonoTHa * RETENCION_SIEMBRA_DIRECTA *
       CONVERSION_C_A_CO2 * datos.superficieHa * 1000;
