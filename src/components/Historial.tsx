@@ -1,13 +1,16 @@
 // ============================================================
 //  Historial.tsx — Lista de cálculos guardados (con modo oscuro).
+//  Cada tarjeta se puede tocar para ver el detalle completo.
 // ============================================================
 
 import { useState } from "react";
 import { leerHistorial, borrarCalculo } from "../storage/historial";
 import { CULTIVOS } from "../calc/factores";
+import type { DatosLote } from "../types";
 
 interface Props {
   onVolver: () => void;
+  onVerLote: (datos: DatosLote) => void; // para ver el detalle de un lote
 }
 
 function fechaLinda(iso: string): string {
@@ -22,10 +25,11 @@ function nombreCultivo(id: string): string {
   return CULTIVOS.find((c) => c.id === id)?.nombre ?? id;
 }
 
-export default function Historial({ onVolver }: Props) {
+export default function Historial({ onVolver, onVerLote }: Props) {
   const [items, setItems] = useState(leerHistorial());
 
-  function manejarBorrar(id: string) {
+  function manejarBorrar(id: string, e: React.MouseEvent) {
+    e.stopPropagation(); // evita que el clic abra el detalle al borrar
     if (confirm("¿Seguro que querés borrar este cálculo?")) {
       borrarCalculo(id);
       setItems(leerHistorial());
@@ -36,7 +40,7 @@ export default function Historial({ onVolver }: Props) {
     <div className="max-w-md mx-auto p-5">
       <h1 className="text-2xl font-bold text-green-700 dark:text-green-400 mb-1">Historial</h1>
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-        Tus cálculos guardados en este dispositivo
+        Tocá un cálculo para ver el detalle completo
       </p>
 
       {items.length === 0 ? (
@@ -53,7 +57,8 @@ export default function Historial({ onVolver }: Props) {
             return (
               <div
                 key={item.id}
-                className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"
+                onClick={() => onVerLote(item.datos)}
+                className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 cursor-pointer hover:border-green-400 dark:hover:border-green-600 transition-colors"
               >
                 <div className="flex justify-between items-start">
                   <div>
@@ -65,7 +70,7 @@ export default function Historial({ onVolver }: Props) {
                     </p>
                   </div>
                   <button
-                    onClick={() => manejarBorrar(item.id)}
+                    onClick={(e) => manejarBorrar(item.id, e)}
                     className="text-xs text-red-400 hover:text-red-600"
                   >
                     Borrar
@@ -80,6 +85,9 @@ export default function Historial({ onVolver }: Props) {
                   {(Math.abs(balance) / 1000).toLocaleString("es-AR", {
                     maximumFractionDigits: 2,
                   })} t CO₂e
+                </p>
+                <p className="text-xs text-green-600 dark:text-green-400 mt-2">
+                  Ver detalle →
                 </p>
               </div>
             );

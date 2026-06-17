@@ -12,13 +12,13 @@ type Pantalla = "formulario" | "resultado" | "historial" | "metodologia";
 function App() {
   const [pantalla, setPantalla] = useState<Pantalla>("formulario");
   const [datos, setDatos] = useState<DatosLote | null>(null);
+  // Recuerda si venimos del historial, para que "volver" regrese ahí.
+  const [vieneDelHistorial, setVieneDelHistorial] = useState(false);
 
-  // Modo oscuro: arranca leyendo lo que el usuario eligió antes.
   const [oscuro, setOscuro] = useState<boolean>(
     () => localStorage.getItem("huella-verde-tema") === "oscuro"
   );
 
-  // Aplica o quita la marca "dark" y guarda la preferencia.
   useEffect(() => {
     const raiz = document.documentElement;
     if (oscuro) {
@@ -30,11 +30,25 @@ function App() {
     }
   }, [oscuro]);
 
+  // Cálculo NUEVO desde el formulario: guarda y muestra.
   function manejarCalculo(d: DatosLote) {
     const resultado = calcularHuella(d);
     guardarCalculo(d, resultado);
     setDatos(d);
+    setVieneDelHistorial(false);
     setPantalla("resultado");
+  }
+
+  // VER un cálculo guardado desde el historial: NO guarda, solo muestra.
+  function verDelHistorial(d: DatosLote) {
+    setDatos(d);
+    setVieneDelHistorial(true);
+    setPantalla("resultado");
+  }
+
+  // El botón "volver" del resultado: si vino del historial, vuelve ahí.
+  function volverDesdeResultado() {
+    setPantalla(vieneDelHistorial ? "historial" : "formulario");
   }
 
   return (
@@ -50,7 +64,7 @@ function App() {
         </button>
       </div>
 
-      {/* PANTALLA: FORMULARIO */}
+      {/* FORMULARIO */}
       {pantalla === "formulario" && (
         <div>
           <FormularioLote onCalcular={manejarCalculo} />
@@ -71,17 +85,20 @@ function App() {
         </div>
       )}
 
-      {/* PANTALLA: RESULTADO */}
+      {/* RESULTADO */}
       {pantalla === "resultado" && datos && (
-        <Resultado datos={datos} onVolver={() => setPantalla("formulario")} />
+        <Resultado datos={datos} onVolver={volverDesdeResultado} />
       )}
 
-      {/* PANTALLA: HISTORIAL */}
+      {/* HISTORIAL */}
       {pantalla === "historial" && (
-        <Historial onVolver={() => setPantalla("formulario")} />
+        <Historial
+          onVolver={() => setPantalla("formulario")}
+          onVerLote={verDelHistorial}
+        />
       )}
 
-      {/* PANTALLA: METODOLOGÍA */}
+      {/* METODOLOGÍA */}
       {pantalla === "metodologia" && (
         <Metodologia onVolver={() => setPantalla("formulario")} />
       )}
