@@ -6,7 +6,7 @@ import type { DatosLote } from "../types";
 import { calcularHuella } from "../calc/calculos";
 import { generarRecomendaciones } from "../calc/recomendaciones";
 import GraficoEmisiones from "./GraficoEmisiones";
-
+import Equivalencias from "./Equivalencias";
 interface Props {
   datos: DatosLote;
   onVolver: () => void;
@@ -70,7 +70,8 @@ export default function Resultado({ datos, onVolver }: Props) {
 
       {/* GRÁFICO DE TORTA */}
       <GraficoEmisiones resultado={r} />
-
+{/* EQUIVALENCIAS VISUALES */}
+      <Equivalencias emisionesKg={r.emisionesTotales} />
       {/* CAPTURA */}
       <div className="rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950 p-4 mb-5">
         <h2 className="text-sm font-bold text-green-800 dark:text-green-300 mb-2">

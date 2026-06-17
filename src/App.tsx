@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import FormularioLote from "./components/FormularioLote";
 import Resultado from "./components/Resultado";
 import Historial from "./components/Historial";
+import Metodologia from "./components/Metodologia";
 import { calcularHuella } from "./calc/calculos";
 import { guardarCalculo } from "./storage/historial";
 import type { DatosLote } from "./types";
 
-type Pantalla = "formulario" | "resultado" | "historial";
+type Pantalla = "formulario" | "resultado" | "historial" | "metodologia";
 
 function App() {
   const [pantalla, setPantalla] = useState<Pantalla>("formulario");
@@ -17,7 +18,7 @@ function App() {
     () => localStorage.getItem("huella-verde-tema") === "oscuro"
   );
 
-  // Aplica o quita la marca "dark" en la página y guarda la preferencia.
+  // Aplica o quita la marca "dark" y guarda la preferencia.
   useEffect(() => {
     const raiz = document.documentElement;
     if (oscuro) {
@@ -49,26 +50,40 @@ function App() {
         </button>
       </div>
 
+      {/* PANTALLA: FORMULARIO */}
       {pantalla === "formulario" && (
         <div>
           <FormularioLote onCalcular={manejarCalculo} />
-          <div className="max-w-md mx-auto px-5">
+          <div className="max-w-md mx-auto px-5 space-y-3">
             <button
               onClick={() => setPantalla("historial")}
               className="w-full rounded-lg border border-gray-300 dark:border-gray-600 p-3 font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
             >
               📋 Ver historial
             </button>
+            <button
+              onClick={() => setPantalla("metodologia")}
+              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 p-3 font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              📖 ¿Cómo calculamos?
+            </button>
           </div>
         </div>
       )}
 
+      {/* PANTALLA: RESULTADO */}
       {pantalla === "resultado" && datos && (
         <Resultado datos={datos} onVolver={() => setPantalla("formulario")} />
       )}
 
+      {/* PANTALLA: HISTORIAL */}
       {pantalla === "historial" && (
         <Historial onVolver={() => setPantalla("formulario")} />
+      )}
+
+      {/* PANTALLA: METODOLOGÍA */}
+      {pantalla === "metodologia" && (
+        <Metodologia onVolver={() => setPantalla("formulario")} />
       )}
     </div>
   );
