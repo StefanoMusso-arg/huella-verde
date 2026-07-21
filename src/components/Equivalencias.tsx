@@ -3,6 +3,8 @@
 //  (árboles para compensar, km en auto). Hace el número más claro.
 // ============================================================
 
+import { motion } from "framer-motion";
+
 // Factores (con fuente):
 // - Un árbol absorbe ~22 kg CO₂/año (Fundación Aquae, valor conservador).
 // - Un auto emite ~0,19 kg CO₂/km (EPA: 2,35 kg/litro ÷ ~12 km/litro).
@@ -27,26 +29,36 @@ export default function Equivalencias({ emisionesKg }: Props) {
 
       <div className="grid grid-cols-2 gap-3">
         {/* ÁRBOLES */}
-        <div className="rounded-lg bg-green-50 dark:bg-green-950 p-3 text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.1, ease: "easeOut" }}
+          className="rounded-lg bg-huella-50 dark:bg-huella-950 p-3 text-center"
+        >
           <p className="text-3xl mb-1">🌳</p>
-          <p className="text-xl font-bold text-green-700 dark:text-green-400">
+          <p className="text-xl font-bold text-huella-700 dark:text-huella-400">
             {arboles.toLocaleString("es-AR")}
           </p>
           <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">
             árboles para absorberlas en un año
           </p>
-        </div>
+        </motion.div>
 
         {/* AUTO */}
-        <div className="rounded-lg bg-gray-50 dark:bg-gray-900 p-3 text-center">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
+          className="rounded-lg bg-cosecha-50 dark:bg-cosecha-950 p-3 text-center"
+        >
           <p className="text-3xl mb-1">🚗</p>
-          <p className="text-xl font-bold text-gray-700 dark:text-gray-200">
+          <p className="text-xl font-bold text-cosecha-700 dark:text-cosecha-400">
             {km.toLocaleString("es-AR")}
           </p>
           <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">
             km recorridos en auto
           </p>
-        </div>
+        </motion.div>
       </div>
     </div>
   );

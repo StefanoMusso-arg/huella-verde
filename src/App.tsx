@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import FormularioLote from "./components/FormularioLote";
 import Resultado from "./components/Resultado";
 import Historial from "./components/Historial";
@@ -8,6 +9,13 @@ import { guardarCalculo } from "./storage/historial";
 import type { DatosLote } from "./types";
 
 type Pantalla = "formulario" | "resultado" | "historial" | "metodologia";
+
+// Variantes de animación: entra con fade + desplazamiento suave hacia arriba.
+const variantesPantalla = {
+  inicial: { opacity: 0, y: 12 },
+  animado: { opacity: 1, y: 0 },
+  salida: { opacity: 0, y: -12 },
+};
 
 function App() {
   const [pantalla, setPantalla] = useState<Pantalla>("formulario");
@@ -52,56 +60,92 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 transition-colors">
-      {/* BOTÓN MODO OSCURO */}
-      <div className="max-w-md mx-auto px-5 flex justify-end mb-2">
-        <button
-          onClick={() => setOscuro(!oscuro)}
-          className="text-xl p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
-          title="Cambiar modo claro/oscuro"
-        >
-          {oscuro ? "☀️" : "🌙"}
-        </button>
-      </div>
-
-      {/* FORMULARIO */}
-      {pantalla === "formulario" && (
-        <div>
-          <FormularioLote onCalcular={manejarCalculo} />
-          <div className="max-w-md mx-auto px-5 space-y-3">
-            <button
-              onClick={() => setPantalla("historial")}
-              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 p-3 font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
-              📋 Ver historial
-            </button>
-            <button
-              onClick={() => setPantalla("metodologia")}
-              className="w-full rounded-lg border border-gray-300 dark:border-gray-600 p-3 font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-            >
-              📖 ¿Cómo calculamos?
-            </button>
-          </div>
+ <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 transition-colors">
+ <div className="max-w-md mx-auto px-5 flex justify-end mb-2">
+          <motion.button
+            onClick={() => setOscuro(!oscuro)}
+            whileTap={{ scale: 0.9, rotate: 15 }}
+            className="text-xl p-2 rounded-full bg-huella-50 dark:bg-huella-900 hover:bg-huella-100 dark:hover:bg-huella-800 transition-colors shadow-sm"
+            title="Cambiar modo claro/oscuro"
+          >
+            {oscuro ? "☀️" : "🌙"}
+          </motion.button>
         </div>
-      )}
 
-      {/* RESULTADO */}
-      {pantalla === "resultado" && datos && (
-        <Resultado datos={datos} onVolver={volverDesdeResultado} />
-      )}
+      <AnimatePresence mode="wait">
+        {/* FORMULARIO */}
+        {pantalla === "formulario" && (
+          <motion.div
+            key="formulario"
+            variants={variantesPantalla}
+            initial="inicial"
+            animate="animado"
+            exit="salida"
+            transition={{ duration: 0.25, ease: "easeOut" }}
+          >
+            <FormularioLote onCalcular={manejarCalculo} />
+            <div className="max-w-md mx-auto px-5 space-y-3">
+              <button
+                onClick={() => setPantalla("historial")}
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 p-3 font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                📋 Ver historial
+              </button>
+              <button
+                onClick={() => setPantalla("metodologia")}
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 p-3 font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                📖 ¿Cómo calculamos?
+              </button>
+            </div>
+          </motion.div>
+        )}
 
-      {/* HISTORIAL */}
-      {pantalla === "historial" && (
-        <Historial
-          onVolver={() => setPantalla("formulario")}
-          onVerLote={verDelHistorial}
-        />
-      )}
+        {/* RESULTADO */}
+        {pantalla === "resultado" && datos && (
+          <motion.div
+            key="resultado"
+            variants={variantesPantalla}
+            initial="inicial"
+            animate="animado"
+            exit="salida"
+            transition={{ duration: 0.25, ease: "easeOut" }}
+          >
+            <Resultado datos={datos} onVolver={volverDesdeResultado} />
+          </motion.div>
+        )}
 
-      {/* METODOLOGÍA */}
-      {pantalla === "metodologia" && (
-        <Metodologia onVolver={() => setPantalla("formulario")} />
-      )}
+        {/* HISTORIAL */}
+        {pantalla === "historial" && (
+          <motion.div
+            key="historial"
+            variants={variantesPantalla}
+            initial="inicial"
+            animate="animado"
+            exit="salida"
+            transition={{ duration: 0.25, ease: "easeOut" }}
+          >
+            <Historial
+              onVolver={() => setPantalla("formulario")}
+              onVerLote={verDelHistorial}
+            />
+          </motion.div>
+        )}
+
+        {/* METODOLOGÍA */}
+        {pantalla === "metodologia" && (
+          <motion.div
+            key="metodologia"
+            variants={variantesPantalla}
+            initial="inicial"
+            animate="animado"
+            exit="salida"
+            transition={{ duration: 0.25, ease: "easeOut" }}
+          >
+            <Metodologia onVolver={() => setPantalla("formulario")} />
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

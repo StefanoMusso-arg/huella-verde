@@ -1,6 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  font-family: 'Manrope', system-ui, sans-serif;
+}
 html {
   background-color: #f9fafb; /* gris muy claro */
 }

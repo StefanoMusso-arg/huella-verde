@@ -10,8 +10,8 @@ interface Props {
   resultado: ResultadoCalculo;
 }
 
-// Colores para cada fuente de emisión.
-const COLORES = ["#16a34a", "#65a30d", "#ca8a04", "#dc2626"];
+// Colores para cada fuente de emisión (paleta huella + cosecha).
+const COLORES = ["#3B6D11", "#639922", "#BA7517", "#D68A1A"];
 
 export default function GraficoEmisiones({ resultado }: Props) {
   // Armamos los datos del gráfico, solo con las fuentes que tienen valor.
@@ -26,8 +26,8 @@ export default function GraficoEmisiones({ resultado }: Props) {
   if (datos.length === 0) return null;
 
   return (
-    <div className="rounded-xl border border-gray-200 p-4 mb-4">
-      <h2 className="text-sm font-bold text-gray-700 mb-2">
+    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 mb-4">
+      <h2 className="text-sm font-bold text-gray-700 dark:text-gray-200 mb-2">
         ¿De dónde viene tu huella?
       </h2>
       <ResponsiveContainer width="100%" height={240}>
@@ -42,17 +42,28 @@ export default function GraficoEmisiones({ resultado }: Props) {
             label={(entry) =>
               `${((entry.percent ?? 0) * 100).toFixed(0)}%`
             }
+            isAnimationActive={true}
+            animationDuration={700}
+            animationEasing="ease-out"
           >
             {datos.map((_, i) => (
               <Cell key={i} fill={COLORES[i % COLORES.length]} />
             ))}
           </Pie>
-         <Tooltip
+          <Tooltip
             formatter={(valor) =>
               `${Math.round(Number(valor)).toLocaleString("es-AR")} kg CO₂e`
             }
+            contentStyle={{
+              backgroundColor: "var(--tooltip-bg, white)",
+              border: "1px solid #e5e7eb",
+              borderRadius: "8px",
+              fontSize: "13px",
+            }}
           />
-          <Legend />
+          <Legend
+            wrapperStyle={{ fontSize: "12px" }}
+          />
         </PieChart>
       </ResponsiveContainer>
     </div>

@@ -4,6 +4,7 @@
 // ============================================================
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { leerHistorial, borrarCalculo } from "../storage/historial";
 import { CULTIVOS } from "../calc/factores";
 import type { DatosLote } from "../types";
@@ -38,7 +39,7 @@ export default function Historial({ onVolver, onVerLote }: Props) {
 
   return (
     <div className="max-w-md mx-auto p-5">
-      <h1 className="text-2xl font-bold text-green-700 dark:text-green-400 mb-1">Historial</h1>
+      <h1 className="text-2xl font-bold text-huella-700 dark:text-huella-400 mb-1">Historial</h1>
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
         Tocá un cálculo para ver el detalle completo
       </p>
@@ -51,14 +52,18 @@ export default function Historial({ onVolver, onVerLote }: Props) {
         </div>
       ) : (
         <div className="space-y-3">
-          {items.map((item) => {
+          {items.map((item, indice) => {
             const balance = item.resultado.balanceNeto;
             const esSumidero = balance < 0;
             return (
-              <div
+              <motion.div
                 key={item.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25, delay: indice * 0.05, ease: "easeOut" }}
+                whileTap={{ scale: 0.98 }}
                 onClick={() => onVerLote(item.datos)}
-                className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 cursor-pointer hover:border-green-400 dark:hover:border-green-600 transition-colors"
+                className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 cursor-pointer hover:border-huella-400 dark:hover:border-huella-600 hover:shadow-sm transition-colors"
               >
                 <div className="flex justify-between items-start">
                   <div>
@@ -78,7 +83,7 @@ export default function Historial({ onVolver, onVerLote }: Props) {
                 </div>
                 <p
                   className={`text-sm font-bold mt-2 ${
-                    esSumidero ? "text-green-700 dark:text-green-400" : "text-orange-600 dark:text-orange-400"
+                    esSumidero ? "text-huella-700 dark:text-huella-400" : "text-cosecha-700 dark:text-cosecha-400"
                   }`}
                 >
                   Balance: {esSumidero ? "−" : "+"}
@@ -86,10 +91,10 @@ export default function Historial({ onVolver, onVerLote }: Props) {
                     maximumFractionDigits: 2,
                   })} t CO₂e
                 </p>
-                <p className="text-xs text-green-600 dark:text-green-400 mt-2">
+                <p className="text-xs text-huella-600 dark:text-huella-400 mt-2">
                   Ver detalle →
                 </p>
-              </div>
+              </motion.div>
             );
           })}
         </div>
@@ -97,7 +102,7 @@ export default function Historial({ onVolver, onVerLote }: Props) {
 
       <button
         onClick={onVolver}
-        className="w-full rounded-lg border border-green-600 p-3 font-semibold text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-gray-800 transition-colors mt-6"
+        className="w-full rounded-lg border border-huella-600 p-3 font-semibold text-huella-700 dark:text-huella-400 hover:bg-huella-50 dark:hover:bg-gray-800 active:scale-[0.98] transition-all mt-6"
       >
         ← Volver
       </button>

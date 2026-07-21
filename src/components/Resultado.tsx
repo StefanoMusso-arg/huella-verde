@@ -7,6 +7,9 @@ import { calcularHuella } from "../calc/calculos";
 import { generarRecomendaciones } from "../calc/recomendaciones";
 import GraficoEmisiones from "./GraficoEmisiones";
 import Equivalencias from "./Equivalencias";
+import { useCountUp } from "../hooks/useCountUp";
+import Simulador from "./Simulador";
+
 interface Props {
   datos: DatosLote;
   onVolver: () => void;
@@ -23,27 +26,38 @@ export default function Resultado({ datos, onVolver }: Props) {
   const r = calcularHuella(datos);
   const recomendaciones = generarRecomendaciones(datos);
   const esSumidero = r.balanceNeto < 0;
+  const balanceAnimado = useCountUp(Math.abs(r.balanceNeto));
 
   return (
-    <div className="max-w-md mx-auto p-5">
-      {/* BALANCE NETO */}
+    <div className="max-w-md mx-auto p-5">Í
+      {/* BALANCE NETO — hero moment */}
       <div
-        className={`rounded-2xl p-6 text-center mb-5 ${
-          esSumidero ? "bg-green-100 dark:bg-green-900" : "bg-orange-50 dark:bg-orange-950"
+        className={`rounded-2xl p-7 text-center mb-5 shadow-sm ${
+          esSumidero
+            ? "bg-huella-50 dark:bg-huella-900"
+            : "bg-cosecha-50 dark:bg-cosecha-900"
         }`}
       >
         <p className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-1">
           Balance neto de tu campaña
         </p>
         <p
-          className={`text-4xl font-bold ${
-            esSumidero ? "text-green-700 dark:text-green-300" : "text-orange-600 dark:text-orange-400"
+          className={`text-5xl font-extrabold tabular-nums tracking-tight ${
+            esSumidero
+              ? "text-huella-700 dark:text-huella-100"
+              : "text-cosecha-700 dark:text-cosecha-100"
           }`}
         >
-          {esSumidero ? "−" : "+"}{aTon(Math.abs(r.balanceNeto))} t
+          {esSumidero ? "−" : "+"}{aTon(balanceAnimado)} t
         </p>
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">CO₂ equivalente</p>
-        <p className="text-sm mt-3 font-medium text-gray-700 dark:text-gray-200">
+        <p
+          className={`text-sm mt-3 font-semibold ${
+            esSumidero
+              ? "text-huella-800 dark:text-huella-200"
+              : "text-cosecha-800 dark:text-cosecha-200"
+          }`}
+        >
           {esSumidero
             ? "🌱 Tu campo captura más carbono del que emite"
             : "Tu campo emite más carbono del que captura"}
@@ -70,16 +84,19 @@ export default function Resultado({ datos, onVolver }: Props) {
 
       {/* GRÁFICO DE TORTA */}
       <GraficoEmisiones resultado={r} />
-{/* EQUIVALENCIAS VISUALES */}
+
+      {/* EQUIVALENCIAS VISUALES */}
       <Equivalencias emisionesKg={r.emisionesTotales} />
+
       {/* CAPTURA */}
-      <div className="rounded-xl border border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-950 p-4 mb-5">
-        <h2 className="text-sm font-bold text-green-800 dark:text-green-300 mb-2">
+      <div className="rounded-xl border border-huella-200 dark:border-huella-800 bg-huella-50 dark:bg-huella-950 p-4 mb-5">
+        <h2 className="text-sm font-bold text-huella-800 dark:text-huella-300 mb-2">
           Carbono capturado por el suelo
         </h2>
         <FilaDato label="Captura total" valor={r.capturaTotal} verde />
       </div>
-
+{/* SIMULADOR "QUÉ PASARÍA SI" */}
+      <Simulador datosOriginales={datos} />
       {/* RECOMENDACIONES */}
       {recomendaciones.length > 0 && (
         <div className="mb-5">
@@ -90,13 +107,13 @@ export default function Resultado({ datos, onVolver }: Props) {
             {recomendaciones.map((rec) => (
               <div
                 key={rec.id}
-                className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"
+                className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 hover:border-cosecha-300 dark:hover:border-cosecha-700 transition-colors"
               >
                 <p className="font-semibold text-gray-800 dark:text-gray-100 text-sm">
                   {rec.titulo}
                 </p>
                 <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">{rec.descripcion}</p>
-                <p className="text-xs font-semibold text-green-700 dark:text-green-400 mt-2">
+                <p className="text-xs font-semibold text-cosecha-700 dark:text-cosecha-400 mt-2">
                   Ahorro estimado: {aKg(rec.ahorroEstimadoKgCO2e)} kg CO₂e
                 </p>
               </div>
@@ -115,7 +132,7 @@ export default function Resultado({ datos, onVolver }: Props) {
       {/* BOTÓN VOLVER */}
       <button
         onClick={onVolver}
-        className="w-full rounded-lg border border-green-600 p-3 font-semibold text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-gray-800 transition-colors"
+        className="w-full rounded-lg border border-huella-600 p-3 font-semibold text-huella-700 dark:text-huella-400 hover:bg-huella-50 dark:hover:bg-gray-800 transition-colors"
       >
         ← Calcular otro lote
       </button>
@@ -133,7 +150,7 @@ function FilaDato({
       </span>
       <span
         className={`text-sm ${negrita ? "font-bold" : ""} ${
-          verde ? "text-green-700 dark:text-green-400 font-semibold" : "text-gray-800 dark:text-gray-100"
+          verde ? "text-huella-700 dark:text-huella-400 font-semibold" : "text-gray-800 dark:text-gray-100"
         }`}
       >
         {Math.round(valor).toLocaleString("es-AR")} kg

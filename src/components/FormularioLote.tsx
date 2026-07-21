@@ -14,9 +14,9 @@ type Ambiente = "bajo" | "medio" | "alto";
 
 // Estilo base de inputs, reutilizable (claro + oscuro).
 const inputBase =
-  "w-full rounded-lg border p-3 focus:outline-none bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100";
-const inputOk = "border-gray-300 dark:border-gray-600 focus:border-green-500";
-const inputError = "border-red-400 focus:border-red-500";
+  "w-full rounded-lg border p-3 focus:outline-none focus:ring-2 transition-shadow bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100";
+const inputOk = "border-gray-300 dark:border-gray-600 focus:border-huella-500 focus:ring-huella-100 dark:focus:ring-huella-900";
+const inputError = "border-red-400 focus:border-red-500 focus:ring-red-100 dark:focus:ring-red-900";
 
 export default function FormularioLote({ onCalcular }: Props) {
   const [cultivoId, setCultivoId] = useState("maiz");
@@ -78,7 +78,7 @@ export default function FormularioLote({ onCalcular }: Props) {
 
   return (
     <div className="max-w-md mx-auto p-5">
-      <h1 className="text-2xl font-bold text-green-700 dark:text-green-400 mb-1">Huella Verde 🌱</h1>
+      <h1 className="text-2xl font-bold text-huella-700 dark:text-huella-400 mb-1">Huella Verde 🌱</h1>
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
         Calculá la huella de carbono de tu campaña
       </p>
@@ -126,7 +126,7 @@ export default function FormularioLote({ onCalcular }: Props) {
                 onClick={() => { setAmbiente(amb); setRinde(""); }}
                 className={`rounded-lg border p-2 text-sm capitalize transition-colors ${
                   ambiente === amb
-                    ? "border-green-600 bg-green-50 dark:bg-green-900 text-green-700 dark:text-green-300 font-semibold"
+                    ? "border-huella-600 bg-huella-50 dark:bg-huella-900 text-huella-700 dark:text-huella-300 font-semibold"
                     : "border-gray-300 dark:border-gray-600 text-gray-600 dark:text-gray-300"
                 }`}
               >
@@ -145,7 +145,7 @@ export default function FormularioLote({ onCalcular }: Props) {
             className={`${inputBase} ${errores.rinde ? inputError : inputOk}`}
           />
           {errores.rinde && <p className="text-xs text-red-500 mt-1">{errores.rinde}</p>}
-          {avisoRinde && <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">{avisoRinde}</p>}
+          {avisoRinde && <p className="text-xs text-cosecha-700 dark:text-cosecha-400 mt-1">{avisoRinde}</p>}
         </div>
 
         {/* FERTILIZANTE */}
@@ -178,7 +178,7 @@ export default function FormularioLote({ onCalcular }: Props) {
                 className={`${inputBase} ${errores.dosis ? inputError : inputOk}`}
               />
               {errores.dosis && <p className="text-xs text-red-500 mt-1">{errores.dosis}</p>}
-              {avisoDosis && <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">{avisoDosis}</p>}
+              {avisoDosis && <p className="text-xs text-cosecha-700 dark:text-cosecha-400 mt-1">{avisoDosis}</p>}
             </div>
           </>
         )}
@@ -207,7 +207,7 @@ export default function FormularioLote({ onCalcular }: Props) {
         {/* BOTÓN */}
         <button
           onClick={manejarCalcular}
-          className="w-full rounded-lg bg-green-600 p-3 font-semibold text-white hover:bg-green-700 transition-colors"
+          className="w-full rounded-lg bg-huella-600 p-3 font-semibold text-white hover:bg-huella-700 active:scale-[0.98] transition-all"
         >
           Calcular huella
         </button>
@@ -226,7 +226,7 @@ function CheckRow({
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="h-5 w-5 accent-green-600"
+        className="h-5 w-5 accent-huella-600"
       />
     </label>
   );

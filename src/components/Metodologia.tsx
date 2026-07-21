@@ -3,6 +3,8 @@
 //  Muestra factores, fuentes y fórmulas. Blindaje para el jurado.
 // ============================================================
 
+import { motion } from "framer-motion";
+
 interface Props {
   onVolver: () => void;
 }
@@ -10,7 +12,7 @@ interface Props {
 export default function Metodologia({ onVolver }: Props) {
   return (
     <div className="max-w-md mx-auto p-5">
-      <h1 className="text-2xl font-bold text-green-700 dark:text-green-400 mb-1">
+      <h1 className="text-2xl font-bold text-huella-700 dark:text-huella-400 mb-1">
         ¿Cómo calculamos?
       </h1>
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
@@ -19,7 +21,7 @@ export default function Metodologia({ onVolver }: Props) {
 
       <div className="space-y-4">
         {/* EMISIONES */}
-        <Seccion titulo="Emisiones de gases de efecto invernadero">
+        <Seccion indice={0} titulo="Emisiones de gases de efecto invernadero">
           <Item
             titulo="Fertilización nitrogenada"
             detalle="El nitrógeno aplicado libera óxido nitroso (N₂O). Usamos el factor del IPCC: 1% del N se emite como N₂O, con un potencial de calentamiento 298 veces el del CO₂."
@@ -43,7 +45,7 @@ export default function Metodologia({ onVolver }: Props) {
         </Seccion>
 
         {/* CAPTURA */}
-        <Seccion titulo="Captura de carbono en el suelo">
+        <Seccion indice={1} titulo="Captura de carbono en el suelo">
           <Item
             titulo="Aporte según rendimiento"
             detalle="El carbono que el cultivo aporta al suelo se calcula con el rinde y un coeficiente propio de cada cultivo (soja 0,37; maíz 0,20; trigo 0,40)."
@@ -57,7 +59,7 @@ export default function Metodologia({ onVolver }: Props) {
         </Seccion>
 
         {/* NITRÓGENO */}
-        <Seccion titulo="Recomendación de nitrógeno">
+        <Seccion indice={2} titulo="Recomendación de nitrógeno">
           <Item
             titulo="Requerimiento por rendimiento"
             detalle="El objetivo de nitrógeno se calcula según el rinde esperado: cada tonelada de grano requiere cierta cantidad de N (maíz 22 kg/t; trigo 30 kg/t)."
@@ -66,7 +68,7 @@ export default function Metodologia({ onVolver }: Props) {
         </Seccion>
 
         {/* RINDES */}
-        <Seccion titulo="Rindes de referencia">
+        <Seccion indice={3} titulo="Rindes de referencia">
           <Item
             titulo="Valores por ambiente"
             detalle="Los rindes sugeridos (bajo, medio, alto) corresponden a datos reales del departamento Marcos Juárez, Córdoba."
@@ -75,19 +77,24 @@ export default function Metodologia({ onVolver }: Props) {
         </Seccion>
 
         {/* NOTA FINAL */}
-        <div className="rounded-xl bg-green-50 dark:bg-green-950 p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.25, delay: 4 * 0.08, ease: "easeOut" }}
+          className="rounded-xl bg-huella-50 dark:bg-huella-950 p-4"
+        >
           <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
             Huella Verde usa metodología <strong>IPCC Tier 1</strong>, el estándar
             internacional para estimar emisiones. Los resultados son estimaciones
             orientativas basadas en factores de referencia, no mediciones exactas
             del lote. Para precisión total se requiere análisis de suelo.
           </p>
-        </div>
+        </motion.div>
       </div>
 
       <button
         onClick={onVolver}
-        className="w-full rounded-lg border border-green-600 p-3 font-semibold text-green-700 dark:text-green-400 hover:bg-green-50 dark:hover:bg-gray-800 transition-colors mt-6"
+        className="w-full rounded-lg border border-huella-600 p-3 font-semibold text-huella-700 dark:text-huella-400 hover:bg-huella-50 dark:hover:bg-gray-800 active:scale-[0.98] transition-all mt-6"
       >
         ← Volver
       </button>
@@ -95,23 +102,28 @@ export default function Metodologia({ onVolver }: Props) {
   );
 }
 
-// Bloque de sección con título.
-function Seccion({ titulo, children }: { titulo: string; children: React.ReactNode }) {
+// Bloque de sección con título, aparece en cascada según su índice.
+function Seccion({ indice, titulo, children }: { indice: number; titulo: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4">
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25, delay: indice * 0.08, ease: "easeOut" }}
+      className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4"
+    >
       <h2 className="text-sm font-bold text-gray-800 dark:text-gray-100 mb-3">{titulo}</h2>
       <div className="space-y-3">{children}</div>
-    </div>
+    </motion.div>
   );
 }
 
 // Item individual: título, explicación y fuente.
 function Item({ titulo, detalle, fuente }: { titulo: string; detalle: string; fuente: string }) {
   return (
-    <div className="border-l-2 border-green-400 pl-3">
+    <div className="border-l-2 border-huella-400 pl-3">
       <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">{titulo}</p>
       <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5">{detalle}</p>
-      <p className="text-[11px] text-green-700 dark:text-green-400 mt-1">📚 {fuente}</p>
+      <p className="text-[11px] text-huella-700 dark:text-huella-400 mt-1">📚 {fuente}</p>
     </div>
   );
 }
