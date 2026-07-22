@@ -15,3 +15,8 @@ html {
 html.dark {
   background-color: #111827; /* gris oscuro */
 }
+/* Modo campo: agranda toda la tipografía de la app para leer mejor
+   al sol, con guantes, o con el celu más lejos del ojo. */
+html.modo-campo {
+  font-size: 118%;
+}

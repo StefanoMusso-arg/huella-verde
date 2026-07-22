@@ -2,7 +2,7 @@
 //  FormularioLote.tsx — Pantalla de carga (con modo oscuro).
 // ============================================================
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { CULTIVOS, FERTILIZANTES, GASOIL_DEFAULT_L_HA } from "../calc/factores";
 import type { DatosLote } from "../types";
@@ -31,6 +31,12 @@ export default function FormularioLote({ onCalcular }: Props) {
   const [siembraDirecta, setSiembraDirecta] = useState(false);
   const [cultivosCobertura, setCobertura] = useState(false);
   const [errores, setErrores] = useState<Record<string, string>>({});
+
+  // Referencias a cada campo, para poder hacerles scroll si tienen error.
+  const refSuperficie = useRef<HTMLInputElement>(null);
+  const refRinde = useRef<HTMLInputElement>(null);
+  const refDosis = useRef<HTMLInputElement>(null);
+  const refGasoil = useRef<HTMLInputElement>(null);
 
   const cultivoActual = CULTIVOS.find((c) => c.id === cultivoId);
   const usaNitrogeno = cultivoActual?.usaNitrogeno ?? false;
@@ -69,6 +75,23 @@ export default function FormularioLote({ onCalcular }: Props) {
     const gas = Number(gasoilLHa);
     if (gasoilLHa !== "" && (isNaN(gas) || gas < 0)) nuevos.gasoil = "El gasoil no puede ser negativo.";
     setErrores(nuevos);
+
+    // Si hay errores, hacemos scroll hasta el primero (en orden de aparición en pantalla).
+    if (Object.keys(nuevos).length > 0) {
+      const refsEnOrden: Array<[string, React.RefObject<HTMLInputElement | null>]> = [
+        ["superficie", refSuperficie],
+        ["rinde", refRinde],
+        ["dosis", refDosis],
+        ["gasoil", refGasoil],
+      ];
+      const primerError = refsEnOrden.find(([clave]) => nuevos[clave]);
+      if (primerError) {
+        const [, ref] = primerError;
+        ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+        ref.current?.focus({ preventScroll: true });
+      }
+    }
+
     return Object.keys(nuevos).length === 0;
   }
 
@@ -127,6 +150,7 @@ export default function FormularioLote({ onCalcular }: Props) {
             Superficie (hectáreas)
           </label>
           <input
+            ref={refSuperficie}
             type="number"
             value={superficieHa}
             onChange={(e) => setSuperficieHa(e.target.value)}
@@ -161,6 +185,7 @@ export default function FormularioLote({ onCalcular }: Props) {
             Rinde estimado (t/ha) — podés ajustarlo si sabés el tuyo
           </label>
           <input
+            ref={refRinde}
             type="number"
             value={rindeTHa}
             onChange={(e) => setRinde(e.target.value)}
@@ -194,6 +219,7 @@ export default function FormularioLote({ onCalcular }: Props) {
                 Dosis de fertilizante (kg/ha)
               </label>
               <input
+                ref={refDosis}
                 type="number"
                 value={dosisFertilizanteKgHa}
                 onChange={(e) => setDosis(e.target.value)}
@@ -212,6 +238,7 @@ export default function FormularioLote({ onCalcular }: Props) {
             Gasoil (litros/ha)
           </label>
           <input
+            ref={refGasoil}
             type="number"
             value={gasoilLHa}
             onChange={(e) => setGasoil(e.target.value)}
@@ -243,14 +270,44 @@ function CheckRow({
   label, checked, onChange,
 }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
   return (
-    <label className="flex items-center justify-between cursor-pointer">
+    <label className="flex items-center justify-between cursor-pointer py-1">
       <span className="text-sm text-gray-700 dark:text-gray-300">{label}</span>
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
-        className="h-5 w-5 accent-huella-600"
-      />
+      <div className="relative h-6 w-6">
+        <input
+          type="checkbox"
+          checked={checked}
+          onChange={(e) => onChange(e.target.checked)}
+          className="peer sr-only"
+        />
+        <motion.div
+          onClick={() => onChange(!checked)}
+          initial={false}
+          animate={{ scale: checked ? [1, 1.15, 1] : 1 }}
+          transition={{ duration: 0.25, ease: "easeOut" }}
+          className={`h-6 w-6 rounded-md border-2 flex items-center justify-center cursor-pointer transition-colors ${
+            checked
+              ? "bg-huella-600 border-huella-600"
+              : "border-gray-300 dark:border-gray-600"
+          }`}
+        >
+          {checked && (
+            <motion.svg
+              initial={{ pathLength: 0, opacity: 0 }}
+              animate={{ pathLength: 1, opacity: 1 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              viewBox="0 0 24 24"
+              className="h-4 w-4"
+              fill="none"
+              stroke="white"
+              strokeWidth={3}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <motion.path d="M5 13l4 4L19 7" />
+            </motion.svg>
+          )}
+        </motion.div>
+      </div>
     </label>
   );
 }

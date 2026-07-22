@@ -21,6 +21,7 @@ const variantesPantalla = {
 };
 
 const CLAVE_ONBOARDING = "huella-verde-onboarding-visto";
+const CLAVE_MODO_CAMPO = "huella-verde-modo-campo";
 
 function App() {
   const [pantalla, setPantalla] = useState<Pantalla>("formulario");
@@ -40,6 +41,11 @@ function App() {
     () => localStorage.getItem("huella-verde-tema") === "oscuro"
   );
 
+  // Modo campo: letra más grande para usar al sol o de lejos.
+  const [modoCampo, setModoCampo] = useState<boolean>(
+    () => localStorage.getItem(CLAVE_MODO_CAMPO) === "true"
+  );
+
   useEffect(() => {
     const raiz = document.documentElement;
     if (oscuro) {
@@ -51,12 +57,29 @@ function App() {
     }
   }, [oscuro]);
 
+  useEffect(() => {
+    const raiz = document.documentElement;
+    if (modoCampo) {
+      raiz.classList.add("modo-campo");
+      localStorage.setItem(CLAVE_MODO_CAMPO, "true");
+    } else {
+      raiz.classList.remove("modo-campo");
+      localStorage.setItem(CLAVE_MODO_CAMPO, "false");
+    }
+  }, [modoCampo]);
+
+  // Cada vez que cambia la pantalla, volvemos el scroll al principio.
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pantalla]);
+
   function terminarOnboarding(noMostrarDeNuevo: boolean) {
     if (noMostrarDeNuevo) {
       localStorage.setItem(CLAVE_ONBOARDING, "true");
     }
     setMostrarOnboarding(false);
   }
+
   // Cálculo NUEVO desde el formulario: guarda y muestra.
   function manejarCalculo(d: DatosLote) {
     const resultado = calcularHuella(d);
@@ -101,7 +124,19 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-8 transition-colors">
-      <div className="max-w-md mx-auto px-5 flex justify-end mb-2">
+      <div className="max-w-md mx-auto px-5 flex justify-end gap-2 mb-2">
+        <motion.button
+          onClick={() => setModoCampo(!modoCampo)}
+          whileTap={{ scale: 0.9 }}
+          className={`text-sm font-bold p-2 px-3 rounded-full transition-colors shadow-sm ${
+            modoCampo
+              ? "bg-huella-600 text-white"
+              : "bg-huella-50 dark:bg-huella-900 text-huella-700 dark:text-huella-300 hover:bg-huella-100 dark:hover:bg-huella-800"
+          }`}
+          title="Modo campo: letra más grande"
+        >
+          A+
+        </motion.button>
         <motion.button
           onClick={() => setOscuro(!oscuro)}
           whileTap={{ scale: 0.9, rotate: 15 }}
@@ -170,6 +205,7 @@ function App() {
               onVerLote={verDelHistorial}
               onComparar={manejarComparar}
               onVerEvolucion={manejarVerEvolucion}
+              onIrAFormulario={() => setPantalla("formulario")}
             />
           </motion.div>
         )}

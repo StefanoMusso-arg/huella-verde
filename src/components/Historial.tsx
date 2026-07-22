@@ -15,6 +15,7 @@ interface Props {
   onVerLote: (datos: DatosLote) => void; // para ver el detalle de un lote
   onComparar: (items: CalculoGuardado[]) => void; // para comparar varios
   onVerEvolucion: (items: CalculoGuardado[]) => void; // para ver la evolución en el tiempo
+  onIrAFormulario: () => void; // para el estado vacío: ir directo a calcular
 }
 
 function fechaLinda(iso: string): string {
@@ -29,7 +30,7 @@ function nombreCultivo(id: string): string {
   return CULTIVOS.find((c) => c.id === id)?.nombre ?? id;
 }
 
-export default function Historial({ onVolver, onVerLote, onComparar, onVerEvolucion }: Props) {
+export default function Historial({ onVolver, onVerLote, onComparar, onVerEvolucion, onIrAFormulario }: Props) {
   const [items, setItems] = useState(leerHistorial());
   const [modoComparar, setModoComparar] = useState(false);
   const [seleccionados, setSeleccionados] = useState<string[]>([]);
@@ -100,11 +101,26 @@ export default function Historial({ onVolver, onVerLote, onComparar, onVerEvoluc
       )}
 
       {items.length === 0 ? (
-        <div className="text-center py-10">
-          <p className="text-gray-400 dark:text-gray-500 text-sm">
-            Todavía no hay cálculos guardados.
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="text-center py-12"
+        >
+          <p className="text-6xl mb-4">🌾</p>
+          <p className="text-gray-700 dark:text-gray-200 font-semibold mb-1">
+            Todavía no hay cálculos guardados
           </p>
-        </div>
+          <p className="text-sm text-gray-400 dark:text-gray-500 mb-6 px-4">
+            Cargá los datos de tu primer lote y empezá a ver tu huella de carbono.
+          </p>
+          <button
+            onClick={onIrAFormulario}
+            className="rounded-lg bg-huella-600 px-5 py-3 font-semibold text-white hover:bg-huella-700 active:scale-[0.98] transition-all"
+          >
+            Calcular tu primer lote
+          </button>
+        </motion.div>
       ) : (
         <div className="space-y-3">
           {items.map((item, indice) => {
