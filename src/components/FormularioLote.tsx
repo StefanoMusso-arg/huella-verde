@@ -21,14 +21,14 @@ interface Props {
 
 type Ambiente = "bajo" | "medio" | "alto";
 
-// Estilo base de inputs, reutilizable (claro + oscuro).
 const inputBase =
   "w-full rounded-lg border p-3 focus:outline-none focus:ring-2 transition-shadow bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100";
 const inputOk = "border-gray-300 dark:border-gray-600 focus:border-huella-500 focus:ring-huella-100 dark:focus:ring-huella-900";
 const inputError = "border-red-400 focus:border-red-500 focus:ring-red-100 dark:focus:ring-red-900";
-// Estilo más chico, para los campos dentro del desplegable.
-const inputChico =
-  "w-full rounded-lg border p-2.5 text-sm focus:outline-none focus:ring-2 transition-shadow bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border-gray-300 dark:border-gray-600 focus:border-huella-500 focus:ring-huella-100 dark:focus:ring-huella-900";
+const inputChicoBase =
+  "w-full rounded-lg border p-2.5 text-sm focus:outline-none focus:ring-2 transition-shadow bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100";
+const inputChicoOk = "border-gray-300 dark:border-gray-600 focus:border-huella-500 focus:ring-huella-100 dark:focus:ring-huella-900";
+const inputChicoError = "border-red-400 focus:border-red-500 focus:ring-red-100 dark:focus:ring-red-900";
 
 export default function FormularioLote({ onCalcular }: Props) {
   const [cultivoId, setCultivoId] = useState("maiz");
@@ -42,7 +42,6 @@ export default function FormularioLote({ onCalcular }: Props) {
   const [cultivosCobertura, setCobertura] = useState(false);
   const [errores, setErrores] = useState<Record<string, string>>({});
 
-  // --- GASOIL: desglose por labor (desplegable) ---
   const [mostrarDesglose, setMostrarDesglose] = useState(false);
   const [gasoilSiembra, setGasoilSiembra] = useState(String(GASOIL_SIEMBRA_DEFAULT_L_HA));
   const [cantidadPulverizaciones, setCantidadPulverizaciones] = useState(String(PULVERIZACIONES_DEFAULT_CANTIDAD));
@@ -50,13 +49,17 @@ export default function FormularioLote({ onCalcular }: Props) {
   const [gasoilCosecha, setGasoilCosecha] = useState(String(GASOIL_COSECHA_DEFAULT_L_HA));
   const [gasoilLabranza, setGasoilLabranza] = useState(String(GASOIL_LABRANZA_DEFAULT_L_HA));
 
-  // --- FLETE ---
   const [distanciaFleteKm, setDistanciaFlete] = useState(String(DISTANCIA_FLETE_DEFAULT_KM));
 
-  // Referencias a cada campo, para poder hacerles scroll si tienen error.
   const refSuperficie = useRef<HTMLInputElement>(null);
   const refRinde = useRef<HTMLInputElement>(null);
   const refDosis = useRef<HTMLInputElement>(null);
+  const refGasoilSiembra = useRef<HTMLInputElement>(null);
+  const refCantidadPulv = useRef<HTMLInputElement>(null);
+  const refGasoilPulv = useRef<HTMLInputElement>(null);
+  const refGasoilCosecha = useRef<HTMLInputElement>(null);
+  const refGasoilLabranza = useRef<HTMLInputElement>(null);
+  const refDistanciaFlete = useRef<HTMLInputElement>(null);
 
   const cultivoActual = CULTIVOS.find((c) => c.id === cultivoId);
   const usaNitrogeno = cultivoActual?.usaNitrogeno ?? false;
@@ -75,19 +78,46 @@ export default function FormularioLote({ onCalcular }: Props) {
       ? "⚠️ Ese rinde parece muy alto para la zona. Verificá el valor."
       : "";
 
-  // --- Total de gasoil, calculado en vivo (lo que se ve siempre, cerrado o no) ---
+  const avisoCantidadPulv =
+    Number(cantidadPulverizaciones) > 10
+      ? "⚠️ Esa cantidad de pasadas parece muy alta. Verificá el valor."
+      : "";
+  const avisoDistanciaFlete =
+    Number(distanciaFleteKm) > 1000
+      ? "⚠️ Esa distancia parece muy larga. Verificá el valor."
+      : "";
+  const avisoSuperficie =
+    Number(superficieHa) > 50000
+      ? "⚠️ Esa superficie parece excesiva. Verificá el valor."
+      : "";
+  const avisoGasoilSiembra =
+    Number(gasoilSiembra) > 100
+      ? "⚠️ Ese consumo en siembra parece muy alto. Verificá el valor."
+      : "";
+  const avisoGasoilPulv =
+    Number(gasoilPulverizacion) > 50
+      ? "⚠️ Ese consumo por pasada parece muy alto. Verificá el valor."
+      : "";
+  const avisoGasoilCosecha =
+    Number(gasoilCosecha) > 100
+      ? "⚠️ Ese consumo en cosecha parece muy alto. Verificá el valor."
+      : "";
+  const avisoGasoilLabranza =
+    Number(gasoilLabranza) > 150
+      ? "⚠️ Ese consumo en labranza parece muy alto. Verificá el valor."
+      : "";
+
   const gasoilTotalCalculado =
     Number(gasoilSiembra || 0) +
     (Number(cantidadPulverizaciones || 0) * Number(gasoilPulverizacion || 0)) +
     Number(gasoilCosecha || 0) +
     (siembraDirecta ? 0 : Number(gasoilLabranza || 0));
 
-  // --- PROGRESO: cuántos campos "clave" están completos ---
   const camposClave = [
-    superficieHa !== "" && Number(superficieHa) > 0, // superficie cargada
-    true, // ambiente siempre tiene un valor por defecto
-    !usaNitrogeno || dosisFertilizanteKgHa !== "", // dosis, solo si el cultivo la necesita
-    true, // gasoil ya viene con defaults
+    superficieHa !== "" && Number(superficieHa) > 0,
+    true,
+    !usaNitrogeno || dosisFertilizanteKgHa !== "",
+    true,
   ];
   const completados = camposClave.filter(Boolean).length;
   const progreso = Math.round((completados / camposClave.length) * 100);
@@ -97,22 +127,67 @@ export default function FormularioLote({ onCalcular }: Props) {
     const sup = Number(superficieHa);
     if (superficieHa === "") nuevos.superficie = "Ingresá la superficie.";
     else if (isNaN(sup) || sup <= 0) nuevos.superficie = "La superficie debe ser mayor a 0.";
+
     if (rindeTHa !== "" && (isNaN(rindeNum) || rindeNum <= 0)) nuevos.rinde = "El rinde debe ser mayor a 0.";
+
     if (usaNitrogeno && dosisFertilizanteKgHa !== "" && (isNaN(dosisNum) || dosisNum < 0)) nuevos.dosis = "La dosis no puede ser negativa.";
+
+    const gSiembra = Number(gasoilSiembra);
+    if (gasoilSiembra === "" || isNaN(gSiembra) || gSiembra < 0) {
+      nuevos.gasoilSiembra = "Ingresá un valor válido (0 o más).";
+    }
+
+    const cantPulv = Number(cantidadPulverizaciones);
+    if (cantidadPulverizaciones === "" || isNaN(cantPulv) || cantPulv < 0 || !Number.isInteger(cantPulv)) {
+      nuevos.cantidadPulv = "Ingresá un número entero (0 o más).";
+    }
+
+    const gPulv = Number(gasoilPulverizacion);
+    if (gasoilPulverizacion === "" || isNaN(gPulv) || gPulv < 0) {
+      nuevos.gasoilPulv = "Ingresá un valor válido (0 o más).";
+    }
+
+    const gCosecha = Number(gasoilCosecha);
+    if (gasoilCosecha === "" || isNaN(gCosecha) || gCosecha < 0) {
+      nuevos.gasoilCosecha = "Ingresá un valor válido (0 o más).";
+    }
+
+    if (!siembraDirecta) {
+      const gLabranza = Number(gasoilLabranza);
+      if (gasoilLabranza === "" || isNaN(gLabranza) || gLabranza < 0) {
+        nuevos.gasoilLabranza = "Ingresá un valor válido (0 o más).";
+      }
+    }
+
+    const distFlete = Number(distanciaFleteKm);
+    if (distanciaFleteKm === "" || isNaN(distFlete) || distFlete < 0) {
+      nuevos.distanciaFlete = "Ingresá una distancia válida (0 o más).";
+    }
+
     setErrores(nuevos);
 
-    // Si hay errores, hacemos scroll hasta el primero (en orden de aparición en pantalla).
     if (Object.keys(nuevos).length > 0) {
       const refsEnOrden: Array<[string, React.RefObject<HTMLInputElement | null>]> = [
         ["superficie", refSuperficie],
         ["rinde", refRinde],
         ["dosis", refDosis],
+        ["gasoilSiembra", refGasoilSiembra],
+        ["cantidadPulv", refCantidadPulv],
+        ["gasoilPulv", refGasoilPulv],
+        ["gasoilCosecha", refGasoilCosecha],
+        ["gasoilLabranza", refGasoilLabranza],
+        ["distanciaFlete", refDistanciaFlete],
       ];
       const primerError = refsEnOrden.find(([clave]) => nuevos[clave]);
       if (primerError) {
-        const [, ref] = primerError;
-        ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
-        ref.current?.focus({ preventScroll: true });
+        const [clave, ref] = primerError;
+        if (["gasoilSiembra", "cantidadPulv", "gasoilPulv", "gasoilCosecha", "gasoilLabranza"].includes(clave)) {
+          setMostrarDesglose(true);
+        }
+        setTimeout(() => {
+          ref.current?.scrollIntoView({ behavior: "smooth", block: "center" });
+          ref.current?.focus({ preventScroll: true });
+        }, 50);
       }
     }
 
@@ -146,7 +221,6 @@ export default function FormularioLote({ onCalcular }: Props) {
         Calculá la huella de carbono de tu campaña
       </p>
 
-      {/* BARRA DE PROGRESO */}
       <div className="mb-6">
         <div className="h-1.5 w-full rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
           <motion.div
@@ -159,7 +233,6 @@ export default function FormularioLote({ onCalcular }: Props) {
       </div>
 
       <div className="space-y-5">
-        {/* CULTIVO */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">Cultivo</label>
           <select
@@ -173,7 +246,6 @@ export default function FormularioLote({ onCalcular }: Props) {
           </select>
         </div>
 
-        {/* SUPERFICIE */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
             Superficie (hectáreas)
@@ -187,9 +259,9 @@ export default function FormularioLote({ onCalcular }: Props) {
             className={`${inputBase} ${errores.superficie ? inputError : inputOk}`}
           />
           {errores.superficie && <p className="text-xs text-red-500 mt-1">{errores.superficie}</p>}
+          {avisoSuperficie && <p className="text-xs text-cosecha-700 dark:text-cosecha-400 mt-1">{avisoSuperficie}</p>}
         </div>
 
-        {/* AMBIENTE + RINDE */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
             Ambiente del lote
@@ -225,7 +297,6 @@ export default function FormularioLote({ onCalcular }: Props) {
           {avisoRinde && <p className="text-xs text-cosecha-700 dark:text-cosecha-400 mt-1">{avisoRinde}</p>}
         </div>
 
-        {/* FERTILIZANTE */}
         {usaNitrogeno && (
           <>
             <div>
@@ -261,7 +332,6 @@ export default function FormularioLote({ onCalcular }: Props) {
           </>
         )}
 
-        {/* GASOIL — resumen + desplegable con el detalle por labor */}
         <div>
           <button
             type="button"
@@ -298,11 +368,14 @@ export default function FormularioLote({ onCalcular }: Props) {
                       Siembra + fertilización (L/ha)
                     </label>
                     <input
+                      ref={refGasoilSiembra}
                       type="number"
                       value={gasoilSiembra}
                       onChange={(e) => setGasoilSiembra(e.target.value)}
-                      className={inputChico}
+                      className={`${inputChicoBase} ${errores.gasoilSiembra ? inputChicoError : inputChicoOk}`}
                     />
+                    {errores.gasoilSiembra && <p className="text-[11px] text-red-500 mt-1">{errores.gasoilSiembra}</p>}
+                    {avisoGasoilSiembra && <p className="text-[11px] text-cosecha-700 dark:text-cosecha-400 mt-1">{avisoGasoilSiembra}</p>}
                   </div>
 
                   <div className="pl-3">
@@ -313,20 +386,26 @@ export default function FormularioLote({ onCalcular }: Props) {
                       <div>
                         <p className="text-[11px] text-gray-400 dark:text-gray-500 mb-1">Cantidad de pasadas</p>
                         <input
+                          ref={refCantidadPulv}
                           type="number"
                           value={cantidadPulverizaciones}
                           onChange={(e) => setCantidadPulverizaciones(e.target.value)}
-                          className={inputChico}
+                          className={`${inputChicoBase} ${errores.cantidadPulv ? inputChicoError : inputChicoOk}`}
                         />
+                        {errores.cantidadPulv && <p className="text-[11px] text-red-500 mt-1">{errores.cantidadPulv}</p>}
+                        {avisoCantidadPulv && <p className="text-[11px] text-cosecha-700 dark:text-cosecha-400 mt-1">{avisoCantidadPulv}</p>}
                       </div>
                       <div>
                         <p className="text-[11px] text-gray-400 dark:text-gray-500 mb-1">L/ha por pasada</p>
                         <input
+                          ref={refGasoilPulv}
                           type="number"
                           value={gasoilPulverizacion}
                           onChange={(e) => setGasoilPulverizacion(e.target.value)}
-                          className={inputChico}
+                          className={`${inputChicoBase} ${errores.gasoilPulv ? inputChicoError : inputChicoOk}`}
                         />
+                        {errores.gasoilPulv && <p className="text-[11px] text-red-500 mt-1">{errores.gasoilPulv}</p>}
+                        {avisoGasoilPulv && <p className="text-[11px] text-cosecha-700 dark:text-cosecha-400 mt-1">{avisoGasoilPulv}</p>}
                       </div>
                     </div>
                   </div>
@@ -336,11 +415,14 @@ export default function FormularioLote({ onCalcular }: Props) {
                       Cosecha (L/ha)
                     </label>
                     <input
+                      ref={refGasoilCosecha}
                       type="number"
                       value={gasoilCosecha}
                       onChange={(e) => setGasoilCosecha(e.target.value)}
-                      className={inputChico}
+                      className={`${inputChicoBase} ${errores.gasoilCosecha ? inputChicoError : inputChicoOk}`}
                     />
+                    {errores.gasoilCosecha && <p className="text-[11px] text-red-500 mt-1">{errores.gasoilCosecha}</p>}
+                    {avisoGasoilCosecha && <p className="text-[11px] text-cosecha-700 dark:text-cosecha-400 mt-1">{avisoGasoilCosecha}</p>}
                   </div>
 
                   {!siembraDirecta && (
@@ -349,11 +431,14 @@ export default function FormularioLote({ onCalcular }: Props) {
                         Labranza (L/ha)
                       </label>
                       <input
+                        ref={refGasoilLabranza}
                         type="number"
                         value={gasoilLabranza}
                         onChange={(e) => setGasoilLabranza(e.target.value)}
-                        className={inputChico}
+                        className={`${inputChicoBase} ${errores.gasoilLabranza ? inputChicoError : inputChicoOk}`}
                       />
+                      {errores.gasoilLabranza && <p className="text-[11px] text-red-500 mt-1">{errores.gasoilLabranza}</p>}
+                      {avisoGasoilLabranza && <p className="text-[11px] text-cosecha-700 dark:text-cosecha-400 mt-1">{avisoGasoilLabranza}</p>}
                       <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">
                         No aplica si hacés siembra directa (tildalo abajo).
                       </p>
@@ -365,30 +450,30 @@ export default function FormularioLote({ onCalcular }: Props) {
           </AnimatePresence>
         </div>
 
-        {/* FLETE */}
         <div>
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
             Distancia de flete al destino (km)
           </label>
           <input
+            ref={refDistanciaFlete}
             type="number"
             value={distanciaFleteKm}
             onChange={(e) => setDistanciaFlete(e.target.value)}
-            className={`${inputBase} ${inputOk}`}
+            className={`${inputBase} ${errores.distanciaFlete ? inputError : inputOk}`}
           />
+          {errores.distanciaFlete && <p className="text-xs text-red-500 mt-1">{errores.distanciaFlete}</p>}
+          {avisoDistanciaFlete && <p className="text-xs text-cosecha-700 dark:text-cosecha-400 mt-1">{avisoDistanciaFlete}</p>}
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
             Distancia desde el lote hasta el acopio o destino (un tramo).
           </p>
         </div>
 
-        {/* PRÁCTICAS */}
         <div className="space-y-3 pt-2">
           <CheckRow label="¿Quema los rastrojos?" checked={quemaRastrojos} onChange={setQuema} />
           <CheckRow label="¿Hace siembra directa?" checked={siembraDirecta} onChange={setSiembraDirecta} />
           <CheckRow label="¿Usa cultivos de cobertura?" checked={cultivosCobertura} onChange={setCobertura} />
         </div>
 
-        {/* BOTÓN */}
         <button
           onClick={manejarCalcular}
           className="w-full rounded-lg bg-huella-600 p-3 font-semibold text-white hover:bg-huella-700 active:scale-[0.98] transition-all"
