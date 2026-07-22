@@ -4,6 +4,7 @@
 // ============================================================
 
 import { motion } from "framer-motion";
+import { BookMarked } from "lucide-react";
 
 interface Props {
   onVolver: () => void;
@@ -132,7 +133,9 @@ function Item({ titulo, detalle, fuente }: { titulo: string; detalle: string; fu
     <div className="border-l-2 border-huella-400 pl-3">
       <p className="text-sm font-semibold text-gray-700 dark:text-gray-200">{titulo}</p>
       <p className="text-xs text-gray-600 dark:text-gray-300 mt-0.5">{detalle}</p>
-      <p className="text-[11px] text-huella-700 dark:text-huella-400 mt-1">📚 {fuente}</p>
+      <p className="text-[11px] text-huella-700 dark:text-huella-400 mt-1 flex items-center gap-1">
+        <BookMarked size={12} /> {fuente}
+      </p>
     </div>
   );
 }

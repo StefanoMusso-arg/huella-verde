@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Moon, Sun, ClipboardList, BookOpen } from "lucide-react";
 import Onboarding from "./components/Onboarding";
 import FormularioLote from "./components/FormularioLote";
 import Resultado from "./components/Resultado";
@@ -140,10 +141,10 @@ function App() {
         <motion.button
           onClick={() => setOscuro(!oscuro)}
           whileTap={{ scale: 0.9, rotate: 15 }}
-          className="text-xl p-2 rounded-full bg-huella-50 dark:bg-huella-900 hover:bg-huella-100 dark:hover:bg-huella-800 transition-colors shadow-sm"
+          className="p-2 rounded-full bg-huella-50 dark:bg-huella-900 hover:bg-huella-100 dark:hover:bg-huella-800 transition-colors shadow-sm text-huella-700 dark:text-huella-300"
           title="Cambiar modo claro/oscuro"
         >
-          {oscuro ? "☀️" : "🌙"}
+          {oscuro ? <Sun size={20} /> : <Moon size={20} />}
         </motion.button>
       </div>
 
@@ -162,15 +163,15 @@ function App() {
             <div className="max-w-md mx-auto px-5 space-y-3">
               <button
                 onClick={() => setPantalla("historial")}
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 p-3 font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="w-full flex items-center justify-center gap-2 rounded-lg border border-gray-300 dark:border-gray-600 p-3 font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
-                📋 Ver historial
+                <ClipboardList size={18} /> Ver historial
               </button>
               <button
                 onClick={() => setPantalla("metodologia")}
-                className="w-full rounded-lg border border-gray-300 dark:border-gray-600 p-3 font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                className="w-full flex items-center justify-center gap-2 rounded-lg border border-gray-300 dark:border-gray-600 p-3 font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
               >
-                📖 ¿Cómo calculamos?
+                <BookOpen size={18} /> ¿Cómo calculamos?
               </button>
             </div>
           </motion.div>

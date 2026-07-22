@@ -69,4 +69,4 @@ export default function GraficoEmisiones({ resultado }: Props) {
       </ResponsiveContainer>
     </div>
   );
-}
+} 

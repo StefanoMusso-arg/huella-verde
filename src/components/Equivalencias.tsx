@@ -4,6 +4,7 @@
 // ============================================================
 
 import { motion } from "framer-motion";
+import { TreePine, Car } from "lucide-react";
 
 // Factores (con fuente):
 // - Un árbol absorbe ~22 kg CO₂/año (Fundación Aquae, valor conservador).
@@ -35,7 +36,7 @@ export default function Equivalencias({ emisionesKg }: Props) {
           transition={{ duration: 0.3, delay: 0.1, ease: "easeOut" }}
           className="rounded-lg bg-huella-50 dark:bg-huella-950 p-3 text-center"
         >
-          <p className="text-3xl mb-1">🌳</p>
+          <TreePine size={32} className="mx-auto mb-1 text-huella-600 dark:text-huella-400" strokeWidth={1.5} />
           <p className="text-xl font-bold text-huella-700 dark:text-huella-400">
             {arboles.toLocaleString("es-AR")}
           </p>
@@ -51,7 +52,7 @@ export default function Equivalencias({ emisionesKg }: Props) {
           transition={{ duration: 0.3, delay: 0.2, ease: "easeOut" }}
           className="rounded-lg bg-cosecha-50 dark:bg-cosecha-950 p-3 text-center"
         >
-          <p className="text-3xl mb-1">🚗</p>
+          <Car size={32} className="mx-auto mb-1 text-cosecha-600 dark:text-cosecha-400" strokeWidth={1.5} />
           <p className="text-xl font-bold text-cosecha-700 dark:text-cosecha-400">
             {km.toLocaleString("es-AR")}
           </p>

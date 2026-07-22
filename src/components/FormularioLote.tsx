@@ -4,6 +4,7 @@
 
 import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Sprout, AlertTriangle } from "lucide-react";
 import {
   CULTIVOS, FERTILIZANTES,
   GASOIL_SIEMBRA_DEFAULT_L_HA,
@@ -30,6 +31,15 @@ const inputChicoBase =
   "w-full rounded-lg border p-2.5 text-sm focus:outline-none focus:ring-2 transition-shadow bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100";
 const inputChicoOk = "border-gray-300 dark:border-gray-600 focus:border-huella-500 focus:ring-huella-100 dark:focus:ring-huella-900";
 const inputChicoError = "border-red-400 focus:border-red-500 focus:ring-red-100 dark:focus:ring-red-900";
+
+// Aviso reutilizable con ícono de advertencia.
+function Aviso({ texto }: { texto: string }) {
+  return (
+    <p className="text-xs text-cosecha-700 dark:text-cosecha-400 mt-1 flex items-start gap-1">
+      <AlertTriangle size={13} className="shrink-0 mt-0.5" /> {texto}
+    </p>
+  );
+}
 
 export default function FormularioLote({ onCalcular }: Props) {
   const [cultivoId, setCultivoId] = useState("maiz");
@@ -71,42 +81,42 @@ export default function FormularioLote({ onCalcular }: Props) {
   const dosisNum = Number(dosisFertilizanteKgHa);
   const avisoDosis =
     usaNitrogeno && dosisNum > 600
-      ? "⚠️ Esa dosis parece muy alta. Verificá el valor."
+      ? "Esa dosis parece muy alta. Verificá el valor."
       : "";
   const rindeNum = Number(rindeTHa);
   const avisoRinde =
     rindeTHa !== "" && rindeNum > 0 &&
     cultivoActual && rindeNum > cultivoActual.rindes.alto * 1.5
-      ? "⚠️ Ese rinde parece muy alto para la zona. Verificá el valor."
+      ? "Ese rinde parece muy alto para la zona. Verificá el valor."
       : "";
 
   const avisoCantidadPulv =
     Number(cantidadPulverizaciones) > 10
-      ? "⚠️ Esa cantidad de pasadas parece muy alta. Verificá el valor."
+      ? "Esa cantidad de pasadas parece muy alta. Verificá el valor."
       : "";
   const avisoDistanciaFlete =
     Number(distanciaFleteKm) > 1000
-      ? "⚠️ Esa distancia parece muy larga. Verificá el valor."
+      ? "Esa distancia parece muy larga. Verificá el valor."
       : "";
   const avisoSuperficie =
     Number(superficieHa) > 50000
-      ? "⚠️ Esa superficie parece excesiva. Verificá el valor."
+      ? "Esa superficie parece excesiva. Verificá el valor."
       : "";
   const avisoGasoilSiembra =
     Number(gasoilSiembra) > 100
-      ? "⚠️ Ese consumo en siembra parece muy alto. Verificá el valor."
+      ? "Ese consumo en siembra parece muy alto. Verificá el valor."
       : "";
   const avisoGasoilPulv =
     Number(gasoilPulverizacion) > 50
-      ? "⚠️ Ese consumo por pasada parece muy alto. Verificá el valor."
+      ? "Ese consumo por pasada parece muy alto. Verificá el valor."
       : "";
   const avisoGasoilCosecha =
     Number(gasoilCosecha) > 100
-      ? "⚠️ Ese consumo en cosecha parece muy alto. Verificá el valor."
+      ? "Ese consumo en cosecha parece muy alto. Verificá el valor."
       : "";
   const avisoGasoilLabranza =
     Number(gasoilLabranza) > 150
-      ? "⚠️ Ese consumo en labranza parece muy alto. Verificá el valor."
+      ? "Ese consumo en labranza parece muy alto. Verificá el valor."
       : "";
 
   const gasoilTotalCalculado =
@@ -229,7 +239,9 @@ export default function FormularioLote({ onCalcular }: Props) {
 
   return (
     <div className="max-w-md mx-auto p-5">
-      <h1 className="text-2xl font-bold text-huella-700 dark:text-huella-400 mb-1">Huella Verde 🌱</h1>
+      <h1 className="text-2xl font-bold text-huella-700 dark:text-huella-400 mb-1 flex items-center gap-2">
+        Huella Verde <Sprout size={22} />
+      </h1>
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
         Calculá la huella de carbono de tu campaña
       </p>
@@ -280,7 +292,7 @@ export default function FormularioLote({ onCalcular }: Props) {
             className={`${inputBase} ${errores.superficie ? inputError : inputOk}`}
           />
           {errores.superficie && <p className="text-xs text-red-500 mt-1">{errores.superficie}</p>}
-          {avisoSuperficie && <p className="text-xs text-cosecha-700 dark:text-cosecha-400 mt-1">{avisoSuperficie}</p>}
+          {avisoSuperficie && <Aviso texto={avisoSuperficie} />}
           {poligonoLote.length >= 3 && (
             <p className="text-xs text-huella-600 dark:text-huella-400 mt-1">
               Calculado a partir del lote dibujado en el mapa. Podés ajustarlo si querés.
@@ -320,7 +332,7 @@ export default function FormularioLote({ onCalcular }: Props) {
             className={`${inputBase} ${errores.rinde ? inputError : inputOk}`}
           />
           {errores.rinde && <p className="text-xs text-red-500 mt-1">{errores.rinde}</p>}
-          {avisoRinde && <p className="text-xs text-cosecha-700 dark:text-cosecha-400 mt-1">{avisoRinde}</p>}
+          {avisoRinde && <Aviso texto={avisoRinde} />}
         </div>
 
         {usaNitrogeno && (
@@ -353,7 +365,7 @@ export default function FormularioLote({ onCalcular }: Props) {
                 className={`${inputBase} ${errores.dosis ? inputError : inputOk}`}
               />
               {errores.dosis && <p className="text-xs text-red-500 mt-1">{errores.dosis}</p>}
-              {avisoDosis && <p className="text-xs text-cosecha-700 dark:text-cosecha-400 mt-1">{avisoDosis}</p>}
+              {avisoDosis && <Aviso texto={avisoDosis} />}
             </div>
           </>
         )}
@@ -401,7 +413,7 @@ export default function FormularioLote({ onCalcular }: Props) {
                       className={`${inputChicoBase} ${errores.gasoilSiembra ? inputChicoError : inputChicoOk}`}
                     />
                     {errores.gasoilSiembra && <p className="text-[11px] text-red-500 mt-1">{errores.gasoilSiembra}</p>}
-                    {avisoGasoilSiembra && <p className="text-[11px] text-cosecha-700 dark:text-cosecha-400 mt-1">{avisoGasoilSiembra}</p>}
+                    {avisoGasoilSiembra && <Aviso texto={avisoGasoilSiembra} />}
                   </div>
 
                   <div className="pl-3">
@@ -419,7 +431,7 @@ export default function FormularioLote({ onCalcular }: Props) {
                           className={`${inputChicoBase} ${errores.cantidadPulv ? inputChicoError : inputChicoOk}`}
                         />
                         {errores.cantidadPulv && <p className="text-[11px] text-red-500 mt-1">{errores.cantidadPulv}</p>}
-                        {avisoCantidadPulv && <p className="text-[11px] text-cosecha-700 dark:text-cosecha-400 mt-1">{avisoCantidadPulv}</p>}
+                        {avisoCantidadPulv && <Aviso texto={avisoCantidadPulv} />}
                       </div>
                       <div>
                         <p className="text-[11px] text-gray-400 dark:text-gray-500 mb-1">L/ha por pasada</p>
@@ -431,7 +443,7 @@ export default function FormularioLote({ onCalcular }: Props) {
                           className={`${inputChicoBase} ${errores.gasoilPulv ? inputChicoError : inputChicoOk}`}
                         />
                         {errores.gasoilPulv && <p className="text-[11px] text-red-500 mt-1">{errores.gasoilPulv}</p>}
-                        {avisoGasoilPulv && <p className="text-[11px] text-cosecha-700 dark:text-cosecha-400 mt-1">{avisoGasoilPulv}</p>}
+                        {avisoGasoilPulv && <Aviso texto={avisoGasoilPulv} />}
                       </div>
                     </div>
                   </div>
@@ -448,7 +460,7 @@ export default function FormularioLote({ onCalcular }: Props) {
                       className={`${inputChicoBase} ${errores.gasoilCosecha ? inputChicoError : inputChicoOk}`}
                     />
                     {errores.gasoilCosecha && <p className="text-[11px] text-red-500 mt-1">{errores.gasoilCosecha}</p>}
-                    {avisoGasoilCosecha && <p className="text-[11px] text-cosecha-700 dark:text-cosecha-400 mt-1">{avisoGasoilCosecha}</p>}
+                    {avisoGasoilCosecha && <Aviso texto={avisoGasoilCosecha} />}
                   </div>
 
                   {!siembraDirecta && (
@@ -464,7 +476,7 @@ export default function FormularioLote({ onCalcular }: Props) {
                         className={`${inputChicoBase} ${errores.gasoilLabranza ? inputChicoError : inputChicoOk}`}
                       />
                       {errores.gasoilLabranza && <p className="text-[11px] text-red-500 mt-1">{errores.gasoilLabranza}</p>}
-                      {avisoGasoilLabranza && <p className="text-[11px] text-cosecha-700 dark:text-cosecha-400 mt-1">{avisoGasoilLabranza}</p>}
+                      {avisoGasoilLabranza && <Aviso texto={avisoGasoilLabranza} />}
                       <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-1">
                         No aplica si hacés siembra directa (tildalo abajo).
                       </p>
@@ -488,7 +500,7 @@ export default function FormularioLote({ onCalcular }: Props) {
             className={`${inputBase} ${errores.distanciaFlete ? inputError : inputOk}`}
           />
           {errores.distanciaFlete && <p className="text-xs text-red-500 mt-1">{errores.distanciaFlete}</p>}
-          {avisoDistanciaFlete && <p className="text-xs text-cosecha-700 dark:text-cosecha-400 mt-1">{avisoDistanciaFlete}</p>}
+          {avisoDistanciaFlete && <Aviso texto={avisoDistanciaFlete} />}
           <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
             Distancia desde el lote hasta el acopio o destino (un tramo).
           </p>

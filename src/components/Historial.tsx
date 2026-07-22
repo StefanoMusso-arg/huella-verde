@@ -6,6 +6,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { Scale, TrendingUp, Wheat, X } from "lucide-react";
 import { leerHistorial, borrarCalculo, type CalculoGuardado } from "../storage/historial";
 import { CULTIVOS } from "../calc/factores";
 import type { DatosLote } from "../types";
@@ -78,15 +79,15 @@ export default function Historial({ onVolver, onVerLote, onComparar, onVerEvoluc
         <div className="grid grid-cols-2 gap-2 mb-4">
           <button
             onClick={alternarModoComparar}
-            className="rounded-lg border border-gray-300 dark:border-gray-600 p-2.5 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 dark:border-gray-600 p-2.5 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
-            ⚖️ Comparar
+            <Scale size={16} /> Comparar
           </button>
           <button
             onClick={() => onVerEvolucion(items)}
-            className="rounded-lg border border-gray-300 dark:border-gray-600 p-2.5 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 dark:border-gray-600 p-2.5 text-sm font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
           >
-            📈 Evolución
+            <TrendingUp size={16} /> Evolución
           </button>
         </div>
       )}
@@ -94,9 +95,9 @@ export default function Historial({ onVolver, onVerLote, onComparar, onVerEvoluc
       {modoComparar && (
         <button
           onClick={alternarModoComparar}
-          className="w-full rounded-lg border border-cosecha-600 bg-cosecha-50 dark:bg-cosecha-950 text-cosecha-700 dark:text-cosecha-400 p-2.5 text-sm font-semibold mb-4 transition-colors"
+          className="flex items-center justify-center gap-2 w-full rounded-lg border border-cosecha-600 bg-cosecha-50 dark:bg-cosecha-950 text-cosecha-700 dark:text-cosecha-400 p-2.5 text-sm font-semibold mb-4 transition-colors"
         >
-          ✕ Cancelar comparación
+          <X size={16} /> Cancelar comparación
         </button>
       )}
 
@@ -107,7 +108,7 @@ export default function Historial({ onVolver, onVerLote, onComparar, onVerEvoluc
           transition={{ duration: 0.3 }}
           className="text-center py-12"
         >
-          <p className="text-6xl mb-4">🌾</p>
+          <Wheat size={56} className="mx-auto mb-4 text-huella-500 dark:text-huella-400" strokeWidth={1.5} />
           <p className="text-gray-700 dark:text-gray-200 font-semibold mb-1">
             Todavía no hay cálculos guardados
           </p>

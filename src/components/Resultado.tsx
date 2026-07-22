@@ -4,6 +4,7 @@
 
 import { useRef, useState } from "react";
 import html2canvas from "html2canvas";
+import { Share2, Download, Lightbulb, Sprout } from "lucide-react";
 import type { DatosLote } from "../types";
 import { calcularHuella } from "../calc/calculos";
 import { generarRecomendaciones } from "../calc/recomendaciones";
@@ -130,14 +131,15 @@ export default function Resultado({ datos, onVolver }: Props) {
           </p>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">CO₂ equivalente</p>
           <p
-            className={`text-sm mt-3 font-semibold ${
+            className={`text-sm mt-3 font-semibold flex items-center justify-center gap-1.5 ${
               esSumidero
                 ? "text-huella-800 dark:text-huella-200"
                 : "text-cosecha-800 dark:text-cosecha-200"
             }`}
           >
+            {esSumidero && <Sprout size={16} />}
             {esSumidero
-              ? "🌱 Tu campo captura más carbono del que emite"
+              ? "Tu campo captura más carbono del que emite"
               : "Tu campo emite más carbono del que captura"}
           </p>
         </div>
@@ -193,16 +195,16 @@ export default function Resultado({ datos, onVolver }: Props) {
         <button
           onClick={compartirResultado}
           disabled={compartiendo}
-          className="rounded-lg bg-huella-600 p-3 font-semibold text-white hover:bg-huella-700 active:scale-[0.98] transition-all disabled:opacity-50"
+          className="flex items-center justify-center gap-2 rounded-lg bg-huella-600 p-3 font-semibold text-white hover:bg-huella-700 active:scale-[0.98] transition-all disabled:opacity-50"
         >
-          {compartiendo ? "..." : "📤 Compartir"}
+          {compartiendo ? "..." : <><Share2 size={18} /> Compartir</>}
         </button>
         <button
           onClick={exportarComoImagen}
           disabled={exportando}
-          className="rounded-lg border border-gray-300 dark:border-gray-600 p-3 font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-[0.98] transition-all disabled:opacity-50"
+          className="flex items-center justify-center gap-2 rounded-lg border border-gray-300 dark:border-gray-600 p-3 font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-[0.98] transition-all disabled:opacity-50"
         >
-          {exportando ? "..." : "📥 Descargar"}
+          {exportando ? "..." : <><Download size={18} /> Descargar</>}
         </button>
       </div>
 
@@ -212,8 +214,8 @@ export default function Resultado({ datos, onVolver }: Props) {
       {/* RECOMENDACIONES */}
       {recomendaciones.length > 0 && (
         <div className="mb-5">
-          <h2 className="text-base font-bold text-gray-800 dark:text-gray-100 mb-3">
-            💡 Cómo reducir tu huella
+          <h2 className="text-base font-bold text-gray-800 dark:text-gray-100 mb-3 flex items-center gap-2">
+            <Lightbulb size={18} className="text-cosecha-600 dark:text-cosecha-400" /> Cómo reducir tu huella
           </h2>
           <div className="space-y-3">
             {recomendaciones.map((rec) => (
