@@ -141,6 +141,7 @@ export default function Resultado({ datos, onVolver }: Props) {
           </p>
         </div>
 
+        
         {/* DESGLOSE DE EMISIONES */}
         <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 mb-4">
           <h2 className="text-sm font-bold text-gray-700 dark:text-gray-200 mb-3">
@@ -150,7 +151,10 @@ export default function Resultado({ datos, onVolver }: Props) {
           {r.emisionPorUrea > 0 && (
             <FilaDato label="Descomposición de urea" valor={r.emisionPorUrea} />
           )}
-          <FilaDato label="Gasoil (maquinaria)" valor={r.emisionPorGasoil} />
+          <FilaDato label="Gasoil (labores agrícolas)" valor={r.emisionPorGasoil} />
+          {r.emisionPorFlete > 0 && (
+            <FilaDato label="Flete (transporte de la cosecha)" valor={r.emisionPorFlete} />
+          )}
           {r.emisionPorQuema > 0 && (
             <FilaDato label="Quema de rastrojos" valor={r.emisionPorQuema} />
           )}

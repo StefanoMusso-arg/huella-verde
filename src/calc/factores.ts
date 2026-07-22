@@ -18,8 +18,22 @@ export const CONVERSION_C_A_CO2 = 44 / 12;     // estequiometría
 export const RETENCION_SIEMBRA_DIRECTA = 0.20;
 export const RETENCION_CULTIVOS_COBERTURA = 0.10;
 
-// ---------- VALOR POR DEFECTO ----------
-export const GASOIL_DEFAULT_L_HA = 25;         // Bolsa de Comercio de Rosario
+// ---------- GASOIL POR LABOR (valores por defecto sugeridos) ----------
+// Fuente: Márgenes Agropecuarios / La Nación (BCR) para siembra,
+// pulverización y cosecha. Labranza: INTA (2 pasadas de rastra pesada
+// a 15 L/ha c/u + 1 pasada de rastra liviana a 5 L/ha = 35 L/ha).
+export const GASOIL_SIEMBRA_DEFAULT_L_HA = 10;
+export const GASOIL_PULVERIZACION_DEFAULT_L_HA = 8; // por cada pasada
+export const PULVERIZACIONES_DEFAULT_CANTIDAD = 4;
+export const GASOIL_COSECHA_DEFAULT_L_HA = 12;
+export const GASOIL_LABRANZA_DEFAULT_L_HA = 35;
+
+// ---------- FLETE (transporte de la cosecha) ----------
+// Fuente: Bolsa de Comercio de Rosario. Consumo representativo de
+// un camión: 0,40 L de gasoil por km. Capacidad de carga: 28 t/viaje.
+export const GASOIL_POR_KM_CAMION = 0.40;
+export const TONELADAS_POR_VIAJE_CAMION = 28;
+export const DISTANCIA_FLETE_DEFAULT_KM = 30; // flete corto típico a acopio (BCR)
 
 // ---------- FERTILIZANTES ----------
 export interface Fertilizante {

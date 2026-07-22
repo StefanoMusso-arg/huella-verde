@@ -11,7 +11,7 @@ interface Props {
 }
 
 // Colores para cada fuente de emisión (paleta huella + cosecha).
-const COLORES = ["#3B6D11", "#639922", "#BA7517", "#D68A1A"];
+const COLORES = ["#3B6D11", "#639922", "#BA7517", "#D68A1A", "#854F0B"];
 
 export default function GraficoEmisiones({ resultado }: Props) {
   // Armamos los datos del gráfico, solo con las fuentes que tienen valor.
@@ -19,6 +19,7 @@ export default function GraficoEmisiones({ resultado }: Props) {
     { nombre: "Fertilización N", valor: resultado.emisionPorN },
     { nombre: "Urea", valor: resultado.emisionPorUrea },
     { nombre: "Gasoil", valor: resultado.emisionPorGasoil },
+    { nombre: "Flete", valor: resultado.emisionPorFlete },
     { nombre: "Quema", valor: resultado.emisionPorQuema },
   ].filter((d) => d.valor > 0); // descartamos las fuentes en cero
 

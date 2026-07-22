@@ -33,9 +33,9 @@ export default function Metodologia({ onVolver }: Props) {
             fuente="IPCC"
           />
           <Item
-            titulo="Gasoil (maquinaria)"
-            detalle="Cada litro de gasoil quemado emite 2,68 kg de CO₂."
-            fuente="Factor estándar de combustión"
+            titulo="Gasoil por labor"
+            detalle="En vez de un valor único, el consumo de gasoil se desglosa por labor: siembra y fertilización (10 L/ha), pulverizaciones (8 L/ha por cada pasada, según la cantidad que declare el productor), cosecha (12 L/ha) y labranza convencional (35 L/ha, solo si el lote no hace siembra directa). Cada litro consumido emite 2,68 kg de CO₂."
+            fuente="Márgenes Agropecuarios / La Nación (datos BCR) e INTA para labranza"
           />
           <Item
             titulo="Quema de rastrojos"
@@ -44,8 +44,17 @@ export default function Metodologia({ onVolver }: Props) {
           />
         </Seccion>
 
+        {/* FLETE */}
+        <Seccion indice={1} titulo="Transporte de la cosecha (flete)">
+          <Item
+            titulo="Emisión por distancia recorrida"
+            detalle="Se calcula la cantidad de viajes de camión necesarios para transportar toda la cosecha (toneladas totales divididas por la capacidad de carga de 28 t por viaje), multiplicado por la distancia declarada al destino (ida y vuelta) y el consumo representativo de un camión: 0,40 L de gasoil por kilómetro."
+            fuente="Bolsa de Comercio de Rosario (BCR)"
+          />
+        </Seccion>
+
         {/* CAPTURA */}
-        <Seccion indice={1} titulo="Captura de carbono en el suelo">
+        <Seccion indice={2} titulo="Captura de carbono en el suelo">
           <Item
             titulo="Aporte según rendimiento"
             detalle="El carbono que el cultivo aporta al suelo se calcula con el rinde y un coeficiente propio de cada cultivo (soja 0,37; maíz 0,20; trigo 0,40)."
@@ -59,7 +68,7 @@ export default function Metodologia({ onVolver }: Props) {
         </Seccion>
 
         {/* NITRÓGENO */}
-        <Seccion indice={2} titulo="Recomendación de nitrógeno">
+        <Seccion indice={3} titulo="Recomendación de nitrógeno">
           <Item
             titulo="Requerimiento por rendimiento"
             detalle="El objetivo de nitrógeno se calcula según el rinde esperado: cada tonelada de grano requiere cierta cantidad de N (maíz 22 kg/t; trigo 30 kg/t)."
@@ -68,7 +77,7 @@ export default function Metodologia({ onVolver }: Props) {
         </Seccion>
 
         {/* RINDES */}
-        <Seccion indice={3} titulo="Rindes de referencia">
+        <Seccion indice={4} titulo="Rindes de referencia">
           <Item
             titulo="Valores por ambiente"
             detalle="Los rindes sugeridos (bajo, medio, alto) corresponden a datos reales del departamento Marcos Juárez, Córdoba."
@@ -80,7 +89,7 @@ export default function Metodologia({ onVolver }: Props) {
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.25, delay: 4 * 0.08, ease: "easeOut" }}
+          transition={{ duration: 0.25, delay: 5 * 0.08, ease: "easeOut" }}
           className="rounded-xl bg-huella-50 dark:bg-huella-950 p-4"
         >
           <p className="text-xs text-gray-600 dark:text-gray-300 leading-relaxed">
