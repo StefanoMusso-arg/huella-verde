@@ -3,6 +3,7 @@
 // ============================================================
 
 import { useState } from "react";
+import { motion } from "framer-motion";
 import { CULTIVOS, FERTILIZANTES, GASOIL_DEFAULT_L_HA } from "../calc/factores";
 import type { DatosLote } from "../types";
 
@@ -48,6 +49,16 @@ export default function FormularioLote({ onCalcular }: Props) {
       ? "⚠️ Ese rinde parece muy alto para la zona. Verificá el valor."
       : "";
 
+  // --- PROGRESO: cuántos campos "clave" están completos ---
+  const camposClave = [
+    superficieHa !== "" && Number(superficieHa) > 0, // superficie cargada
+    true, // ambiente siempre tiene un valor por defecto
+    !usaNitrogeno || dosisFertilizanteKgHa !== "", // dosis, solo si el cultivo la necesita
+    gasoilLHa !== "", // gasoil (ya viene con default)
+  ];
+  const completados = camposClave.filter(Boolean).length;
+  const progreso = Math.round((completados / camposClave.length) * 100);
+
   function validar(): boolean {
     const nuevos: Record<string, string> = {};
     const sup = Number(superficieHa);
@@ -79,9 +90,21 @@ export default function FormularioLote({ onCalcular }: Props) {
   return (
     <div className="max-w-md mx-auto p-5">
       <h1 className="text-2xl font-bold text-huella-700 dark:text-huella-400 mb-1">Huella Verde 🌱</h1>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
+      <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
         Calculá la huella de carbono de tu campaña
       </p>
+
+      {/* BARRA DE PROGRESO */}
+      <div className="mb-6">
+        <div className="h-1.5 w-full rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+          <motion.div
+            className="h-full bg-huella-500"
+            initial={{ width: 0 }}
+            animate={{ width: `${progreso}%` }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+          />
+        </div>
+      </div>
 
       <div className="space-y-5">
         {/* CULTIVO */}
