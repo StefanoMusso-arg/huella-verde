@@ -11,6 +11,7 @@ import GraficoEmisiones from "./GraficoEmisiones";
 import Equivalencias from "./Equivalencias";
 import { useCountUp } from "../hooks/useCountUp";
 import Simulador from "./Simulador";
+import MapaLote from "./MapaLote";
 import { CULTIVOS } from "../calc/factores";
 
 interface Props {
@@ -141,7 +142,16 @@ export default function Resultado({ datos, onVolver }: Props) {
           </p>
         </div>
 
-        
+        {/* MAPA DEL LOTE (solo si se dibujó al cargar) */}
+        {datos.poligonoLote && datos.poligonoLote.length >= 3 && (
+          <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 mb-4">
+            <h2 className="text-sm font-bold text-gray-700 dark:text-gray-200 mb-3">
+              Ubicación del lote
+            </h2>
+            <MapaLote puntosIniciales={datos.poligonoLote} soloLectura />
+          </div>
+        )}
+
         {/* DESGLOSE DE EMISIONES */}
         <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 mb-4">
           <h2 className="text-sm font-bold text-gray-700 dark:text-gray-200 mb-3">

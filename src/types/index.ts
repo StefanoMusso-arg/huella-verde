@@ -22,4 +22,7 @@ export interface DatosLote {
   quemaRastrojos: boolean;
   siembraDirecta: boolean;
   cultivosCobertura: boolean;
+
+  // --- NUEVO: polígono del lote dibujado en el mapa (opcional) ---
+  poligonoLote?: { lat: number; lng: number }[];
 }

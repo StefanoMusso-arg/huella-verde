@@ -14,6 +14,7 @@ import {
   DISTANCIA_FLETE_DEFAULT_KM,
 } from "../calc/factores";
 import type { DatosLote } from "../types";
+import MapaLote, { type PuntoLote } from "./MapaLote";
 
 interface Props {
   onCalcular: (datos: DatosLote) => void;
@@ -33,6 +34,7 @@ const inputChicoError = "border-red-400 focus:border-red-500 focus:ring-red-100 
 export default function FormularioLote({ onCalcular }: Props) {
   const [cultivoId, setCultivoId] = useState("maiz");
   const [superficieHa, setSuperficieHa] = useState("");
+  const [poligonoLote, setPoligonoLote] = useState<PuntoLote[]>([]);
   const [ambiente, setAmbiente] = useState<Ambiente>("medio");
   const [rindeTHa, setRinde] = useState("");
   const [fertilizanteId, setFertilizanteId] = useState("urea");
@@ -122,10 +124,20 @@ export default function FormularioLote({ onCalcular }: Props) {
   const completados = camposClave.filter(Boolean).length;
   const progreso = Math.round((completados / camposClave.length) * 100);
 
+  // Cuando el mapa cambia (se agrega/borra un punto), autocompletamos
+  // la superficie SOLO si el productor todavía no la tocó a mano,
+  // o si el polígono tiene puntos (para que el mapa mande cuando se usa).
+  function manejarCambioMapa(puntos: PuntoLote[], hectareas: number) {
+    setPoligonoLote(puntos);
+    if (puntos.length >= 3) {
+      setSuperficieHa(hectareas.toFixed(2));
+    }
+  }
+
   function validar(): boolean {
     const nuevos: Record<string, string> = {};
     const sup = Number(superficieHa);
-    if (superficieHa === "") nuevos.superficie = "Ingresá la superficie.";
+    if (superficieHa === "") nuevos.superficie = "Ingresá la superficie o dibujá el lote en el mapa.";
     else if (isNaN(sup) || sup <= 0) nuevos.superficie = "La superficie debe ser mayor a 0.";
 
     if (rindeTHa !== "" && (isNaN(rindeNum) || rindeNum <= 0)) nuevos.rinde = "El rinde debe ser mayor a 0.";
@@ -211,6 +223,7 @@ export default function FormularioLote({ onCalcular }: Props) {
       quemaRastrojos,
       siembraDirecta,
       cultivosCobertura,
+      poligonoLote: poligonoLote.length >= 3 ? poligonoLote : undefined,
     });
   }
 
@@ -246,6 +259,14 @@ export default function FormularioLote({ onCalcular }: Props) {
           </select>
         </div>
 
+        {/* MAPA DEL LOTE */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
+            Marcá tu lote en el mapa (opcional)
+          </label>
+          <MapaLote onCambiarPoligono={manejarCambioMapa} />
+        </div>
+
         <div>
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-1">
             Superficie (hectáreas)
@@ -260,6 +281,11 @@ export default function FormularioLote({ onCalcular }: Props) {
           />
           {errores.superficie && <p className="text-xs text-red-500 mt-1">{errores.superficie}</p>}
           {avisoSuperficie && <p className="text-xs text-cosecha-700 dark:text-cosecha-400 mt-1">{avisoSuperficie}</p>}
+          {poligonoLote.length >= 3 && (
+            <p className="text-xs text-huella-600 dark:text-huella-400 mt-1">
+              Calculado a partir del lote dibujado en el mapa. Podés ajustarlo si querés.
+            </p>
+          )}
         </div>
 
         <div>
