@@ -62,11 +62,11 @@ export default function MapaLote({ puntosIniciales = [], onCambiarPoligono, solo
   useEffect(() => {
     if (!contenedorRef.current || mapaRef.current) return;
 
-    // Centro por defecto: Marcos Juárez, Córdoba (tu zona).
+    // Centro por defecto: Monte Buey, Córdoba (tu zona).
     const centroDefault: [number, number] = puntosIniciales.length > 0
       ? [puntosIniciales[0].lat, puntosIniciales[0].lng]
-      : [-32.7, -62.1];
-
+      : [-32.915666, -62.456255];
+      
     const mapa = L.map(contenedorRef.current, {
       dragging: !soloLectura || puntosIniciales.length === 0 ? true : true, // el mapa siempre se puede mover/zoomear
       zoomControl: true,

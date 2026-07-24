@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Moon, Sun, ClipboardList, BookOpen } from "lucide-react";
+import { Moon, Sun, ClipboardList, BookOpen, Info } from "lucide-react";
 import Onboarding from "./components/Onboarding";
 import FormularioLote from "./components/FormularioLote";
 import Resultado from "./components/Resultado";
@@ -8,11 +8,12 @@ import Historial from "./components/Historial";
 import Metodologia from "./components/Metodologia";
 import Comparador from "./components/Comparador";
 import Evolucion from "./components/Evolucion";
+import AcercaDe from "./components/AcercaDe";
 import { calcularHuella } from "./calc/calculos";
 import { guardarCalculo, type CalculoGuardado } from "./storage/historial";
 import type { DatosLote } from "./types";
 
-type Pantalla = "formulario" | "resultado" | "historial" | "metodologia" | "comparador" | "evolucion";
+type Pantalla = "formulario" | "resultado" | "historial" | "metodologia" | "comparador" | "evolucion" | "acercade";
 
 // Variantes de animación: entra con fade + desplazamiento suave hacia arriba.
 const variantesPantalla = {
@@ -173,6 +174,12 @@ function App() {
               >
                 <BookOpen size={18} /> ¿Cómo calculamos?
               </button>
+              <button
+                onClick={() => setPantalla("acercade")}
+                className="w-full flex items-center justify-center gap-2 rounded-lg border border-gray-300 dark:border-gray-600 p-3 font-semibold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              >
+                <Info size={18} /> Acerca de
+              </button>
             </div>
           </motion.div>
         )}
@@ -250,6 +257,20 @@ function App() {
             transition={{ duration: 0.25, ease: "easeOut" }}
           >
             <Evolucion items={lotesEvolucion} onVolver={() => setPantalla("historial")} />
+          </motion.div>
+        )}
+
+        {/* ACERCA DE */}
+        {pantalla === "acercade" && (
+          <motion.div
+            key="acercade"
+            variants={variantesPantalla}
+            initial="inicial"
+            animate="animado"
+            exit="salida"
+            transition={{ duration: 0.25, ease: "easeOut" }}
+          >
+            <AcercaDe onVolver={() => setPantalla("formulario")} />
           </motion.div>
         )}
       </AnimatePresence>
